@@ -1,6 +1,0 @@
-ios:
-
-tasks:
-  - name: dummy task
-    flow:
-      - sleep: 100
