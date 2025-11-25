@@ -44,50 +44,56 @@ Here is how to use Midscene in a standard Selenium test.
 ### Code Snippet
 
 ```java
+package com.midscene.web.demo;
+
 import com.midscene.core.agent.Agent;
 import com.midscene.core.config.MidsceneConfig;
 import com.midscene.core.config.ModelProvider;
 import com.midscene.web.driver.SeleniumDriver;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class MidsceneExample {
-    public static void main(String[] args) {
-        // 1. Setup Selenium WebDriver
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Optional
-        WebDriver webDriver = new ChromeDriver(options);
-        
-        try {
-            // 2. Navigate to a page
-            webDriver.get("https://www.ebay.com");
+@Log4j2
+public class MidsceneDemoTest {
 
-            // 3. Configure Midscene
-            MidsceneConfig config = MidsceneConfig.builder()
-                .provider(ModelProvider.OPENAI)
-                .apiKey(System.getenv("OPENAI_API_KEY")) // Or hardcode your key
-                .modelName("gpt-4o")
-                .build();
+  private WebDriver driver;
 
-            // 4. Create the Agent
-            // Wrap your WebDriver in a Midscene SeleniumDriver
-            SeleniumDriver driverAdapter = new SeleniumDriver(webDriver);
-            Agent agent = Agent.create(config, driverAdapter);
+  @BeforeEach
+  @SneakyThrows
+  void initDriver() {
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("--remote-allow-origins=*");
 
-            // 5. Interact using Natural Language
-            // Perform actions
-            agent.aiAction("Search for 'Gaming Keyboard'");
-            agent.aiAction("Click on the first search result");
+    driver = new ChromeDriver(options);
+    driver.manage().window().maximize();
+  }
 
-            // Query information
-            String price = agent.aiQuery("What is the price of the item?");
-            System.out.println("Item Price: " + price);
+  @Test
+  public void localGeminiTest() {
+    driver.get("https://midscenejs.com/");
 
-        } finally {
-            webDriver.quit();
-        }
-    }
+    MidsceneConfig config = MidsceneConfig.builder()
+        .provider(ModelProvider.GEMINI)
+        .apiKey("API_KEY")
+        .modelName("gemini-2.5-pro")
+        .build();
+
+    SeleniumDriver driverAdapter = new SeleniumDriver(driver);
+    Agent agent = Agent.create(config, driverAdapter);
+
+    agent.aiAction("Search for 'MCP server' button in the left sidebar of this site and click it.");
+  }
+
+  @AfterEach
+  void shutDownDriver() {
+    driver.quit();
+  }
 }
 ```
 
@@ -99,7 +105,7 @@ You can configure the agent using `MidsceneConfig`:
 MidsceneConfig config = MidsceneConfig.builder()
     .provider(ModelProvider.GEMINI)      // Choose OPENAI or GEMINI
     .apiKey("your-api-key")              // Set API Key
-    .modelName("gemini-1.5-pro")         // Specific model version
+    .modelName("gemini-2.5-pro")         // Specific model version
     .timeoutMs(60000)                    // Timeout in milliseconds
     .build();
 ```
