@@ -105,7 +105,7 @@
 
   <parent>
     <artifactId>midscene-parent</artifactId>
-    <groupId>com.midscene</groupId>
+    <groupId>io.github.alstafeev</groupId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 

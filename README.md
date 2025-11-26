@@ -23,7 +23,7 @@
 Currently, Midscene Java is available as a source build. Clone this repository and install it to your local Maven repository:
 
 ```bash
-git clone https://github.com/midscene/midscene-java.git
+git clone https://github.com/alstafeev/midscene-java.git
 cd midscene-java
 mvn clean install
 ```
@@ -33,12 +33,12 @@ Add the necessary dependencies to your project's `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.midscene</groupId>
+    <groupId>io.github.alstafeev</groupId>
     <artifactId>midscene-web</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
 <dependency>
-    <groupId>com.midscene</groupId>
+    <groupId>io.github.alstafeev</groupId>
     <artifactId>midscene-visualizer</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
@@ -56,13 +56,13 @@ Here is how to use Midscene in a standard Selenium test, including report genera
 ### Code Snippet
 
 ```java
-package com.midscene.web.demo;
+package io.github.alstafeev.web.demo;
 
-import com.midscene.core.agent.Agent;
-import com.midscene.core.config.MidsceneConfig;
-import com.midscene.core.config.ModelProvider;
-import com.midscene.visualizer.Visualizer;
-import com.midscene.web.driver.SeleniumDriver;
+import io.github.alstafeev.core.agent.Agent;
+import io.github.alstafeev.core.config.MidsceneConfig;
+import io.github.alstafeev.core.config.ModelProvider;
+import io.github.alstafeev.visualizer.Visualizer;
+import io.github.alstafeev.web.driver.SeleniumDriver;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

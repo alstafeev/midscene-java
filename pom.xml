@@ -116,7 +116,7 @@
     </dependencies>
   </dependencyManagement>
 
-  <groupId>com.midscene</groupId>
+  <groupId>io.github.alstafeev</groupId>
   <modelVersion>4.0.0</modelVersion>
 
   <modules>
