@@ -4,6 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>midscene-core</artifactId>
+  <name>Midscene Core</name>
+  <description>Core logic for Midscene AI automation SDK</description>
+  <url>https://github.com/alstafeev/midscene-java</url>
 
   <dependencies>
     <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
@@ -106,7 +109,7 @@
   <parent>
     <artifactId>midscene-parent</artifactId>
     <groupId>io.github.alstafeev</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
 
 </project>

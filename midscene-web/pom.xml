@@ -4,6 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>midscene-web</artifactId>
+  <name>Midscene Web</name>
+  <description>Web driver adapters for Midscene Java</description>
+  <url>https://github.com/alstafeev/midscene-java</url>
 
   <dependencies>
     <dependency>
@@ -68,7 +71,7 @@
   <parent>
     <artifactId>midscene-parent</artifactId>
     <groupId>io.github.alstafeev</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
 
 </project>
