@@ -116,6 +116,70 @@ public class MidsceneDemoTest {
 }
 ```
 
+### Playwright Example
+
+```java
+package io.github.alstafeev.web.demo;
+
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import io.github.alstafeev.core.agent.Agent;
+import io.github.alstafeev.core.config.MidsceneConfig;
+import io.github.alstafeev.core.config.ModelProvider;
+import io.github.alstafeev.visualizer.Visualizer;
+import io.github.alstafeev.web.driver.PlaywrightDriver;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class MidscenePlaywrightDemoTest {
+
+  private Playwright playwright;
+  private Browser browser;
+  private Page page;
+  private Agent agent;
+
+  @BeforeEach
+  void initDriver() {
+    playwright = Playwright.create();
+    browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+    page = browser.newPage();
+  }
+
+  @Test
+  public void localGeminiTest() {
+    page.navigate("https://midscenejs.com/");
+
+    MidsceneConfig config = MidsceneConfig.builder()
+        .provider(ModelProvider.GEMINI)
+        .apiKey(System.getenv("GEMINI_API_KEY"))
+        .modelName("gemini-2.5-pro")
+        .build();
+
+    PlaywrightDriver driverAdapter = new PlaywrightDriver(page);
+    agent = Agent.create(config, driverAdapter);
+
+    agent.aiAction("Search for 'MCP server' button in the left sidebar of this site and click it.");
+  }
+
+  @AfterEach
+  void shutDownDriver() {
+    if (agent != null) {
+      // Generate report after test
+      Visualizer.generateReport(agent.getContext(), Paths.get("midscene-playwright-report.html"));
+    }
+    if (browser != null) {
+      browser.close();
+    }
+    if (playwright != null) {
+      playwright.close();
+    }
+  }
+}
+```
+
 ## Configuration
 
 You can configure the agent using `MidsceneConfig`:

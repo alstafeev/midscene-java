@@ -62,4 +62,13 @@ public class Agent {
   public CompletableFuture<Void> aiActionAsync(String instruction) {
     return CompletableFuture.runAsync(() -> aiAction(instruction));
   }
+
+  /**
+   * Gets the execution context.
+   *
+   * @return The execution context
+   */
+  public com.midscene.core.context.Context getContext() {
+    return orchestrator.getContext();
+  }
 }
