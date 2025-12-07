@@ -19,8 +19,8 @@ class VisualizerTest {
 
         assertTrue(Files.exists(reportPath));
         String content = Files.readString(reportPath);
-        assertTrue(content.contains("Midscene Execution Report"));
-        assertTrue(content.contains("test"));
+        assertTrue(content.contains("Midscene Report"));
+        assertTrue(content.contains("midscene_web_dump"));
     }
 
     @Test

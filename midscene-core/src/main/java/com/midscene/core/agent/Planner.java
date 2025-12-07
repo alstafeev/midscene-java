@@ -3,7 +3,7 @@ package com.midscene.core.agent;
 import com.midscene.core.agent.promt.PromptManager;
 import com.midscene.core.model.AIModel;
 import com.midscene.core.pojo.planning.PlanningResponse;
-import com.midscene.core.utils.JsonResponseToPojoMapper;
+import com.midscene.core.utils.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ImageContent;
@@ -50,7 +50,7 @@ public class Planner {
     history.add(AiMessage.from(responseJson));
 
     try {
-      PlanningResponse planningResponse = JsonResponseToPojoMapper.mapResponseToClass(responseJson,
+      PlanningResponse planningResponse = ObjectMapper.mapResponseToClass(responseJson,
           PlanningResponse.class);
       planningResponse.setDescription(chatResponse.metadata().tokenUsage().toString());
       return planningResponse;

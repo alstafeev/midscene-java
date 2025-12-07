@@ -3,13 +3,12 @@ package com.midscene.core.utils;
 import lombok.experimental.UtilityClass;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 @UtilityClass
-public class JsonResponseToPojoMapper {
+public class ObjectMapper {
 
-  private final ObjectMapper MAPPER = JsonMapper.builder()
+  private final tools.jackson.databind.ObjectMapper MAPPER = JsonMapper.builder()
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true)
@@ -20,6 +19,10 @@ public class JsonResponseToPojoMapper {
     String clearedJson = cleanMarkdown(jsonResponse);
 
     return MAPPER.readValue(clearedJson, mappedClass);
+  }
+
+  public String writeValueAsString(Object value) {
+    return MAPPER.writeValueAsString(value);
   }
 
   private String cleanMarkdown(String input) {

@@ -102,6 +102,13 @@
         <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.exasol/maven-project-version-getter -->
+      <dependency>
+        <groupId>com.exasol</groupId>
+        <artifactId>maven-project-version-getter</artifactId>
+        <version>${maven.version.getter.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -127,6 +134,7 @@
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <mockito.version>5.11.0</mockito.version>
+    <maven.version.getter.version>1.2.2</maven.version.getter.version>
   </properties>
 
   <build>
@@ -208,6 +216,6 @@
     </plugins>
   </build>
 
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 
 </project>

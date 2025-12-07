@@ -58,11 +58,11 @@ Here is how to use Midscene in a standard Selenium test, including report genera
 ```java
 package io.github.alstafeev.web.demo;
 
-import io.github.alstafeev.core.agent.Agent;
-import io.github.alstafeev.core.config.MidsceneConfig;
-import io.github.alstafeev.core.config.ModelProvider;
-import io.github.alstafeev.visualizer.Visualizer;
-import io.github.alstafeev.web.driver.SeleniumDriver;
+import com.midscene.core.agent.Agent;
+import com.midscene.core.config.MidsceneConfig;
+import com.midscene.core.config.ModelProvider;
+import com.midscene.visualizer.Visualizer;
+import com.midscene.web.driver.SeleniumDriver;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,11 +125,11 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import io.github.alstafeev.core.agent.Agent;
-import io.github.alstafeev.core.config.MidsceneConfig;
-import io.github.alstafeev.core.config.ModelProvider;
-import io.github.alstafeev.visualizer.Visualizer;
-import io.github.alstafeev.web.driver.PlaywrightDriver;
+import com.midscene.core.agent.Agent;
+import com.midscene.core.config.MidsceneConfig;
+import com.midscene.core.config.ModelProvider;
+import com.midscene.visualizer.Visualizer;
+import com.midscene.web.driver.PlaywrightDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

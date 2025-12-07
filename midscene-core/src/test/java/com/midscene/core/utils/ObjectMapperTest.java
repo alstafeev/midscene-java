@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import lombok.Data;
 import static org.junit.jupiter.api.Assertions.*;
 
-class JsonResponseToPojoMapperTest {
+class ObjectMapperTest {
 
     @Data
     static class TestPojo {
@@ -15,7 +15,7 @@ class JsonResponseToPojoMapperTest {
     @Test
     void testMapSimpleJson() {
         String json = "{\"name\": " + "\"test\", \"value\": 123}";
-        TestPojo result = JsonResponseToPojoMapper.mapResponseToClass(json, TestPojo.class);
+        TestPojo result = ObjectMapper.mapResponseToClass(json, TestPojo.class);
         assertEquals("test", result.getName());
         assertEquals(123, result.getValue());
     }
@@ -23,7 +23,7 @@ class JsonResponseToPojoMapperTest {
     @Test
     void testMapMarkdownJson() {
         String json = "```json\n{\"name\": " + "\"test\", \"value\": 123}\n```";
-        TestPojo result = JsonResponseToPojoMapper.mapResponseToClass(json, TestPojo.class);
+        TestPojo result = ObjectMapper.mapResponseToClass(json, TestPojo.class);
         assertEquals("test", result.getName());
         assertEquals(123, result.getValue());
     }
@@ -31,7 +31,7 @@ class JsonResponseToPojoMapperTest {
     @Test
     void testCaseInsensitive() {
         String json = "{\"NAME\": " + "\"test\", \"VALUE\": 123}";
-        TestPojo result = JsonResponseToPojoMapper.mapResponseToClass(json, TestPojo.class);
+        TestPojo result = ObjectMapper.mapResponseToClass(json, TestPojo.class);
         assertEquals("test", result.getName());
         assertEquals(123, result.getValue());
     }
