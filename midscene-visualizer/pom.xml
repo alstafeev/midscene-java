@@ -1,47 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>midscene-parent</artifactId>
-        <groupId>io.github.alstafeev</groupId>
-        <version>0.1.1</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>midscene-visualizer</artifactId>
-  <name>Midscene Visualizer</name>
-  <description>Visualization and reporting tools for Midscene</description>
-  <url>https://github.com/alstafeev/midscene-java</url>
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/io.github.alstafeev/midscene-core -->
+    <dependency>
+      <artifactId>midscene-core</artifactId>
+      <groupId>io.github.alstafeev</groupId>
+      <version>${project.version}</version>
+    </dependency>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.github.alstafeev</groupId>
-            <artifactId>midscene-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-      <dependency>
-        <groupId>com.exasol</groupId>
-        <artifactId>maven-project-version-getter</artifactId>
-      </dependency>
-    </dependencies>
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+    <dependency>
+      <artifactId>jackson-databind</artifactId>
+      <groupId>tools.jackson.core</groupId>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+    <dependency>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.exasol/maven-project-version-getter -->
+    <dependency>
+      <artifactId>maven-project-version-getter</artifactId>
+      <groupId>com.exasol</groupId>
+    </dependency>
+  </dependencies>
+
+  <description>Visualization and reporting tools for Midscene</description>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Midscene Visualizer</name>
+  <parent>
+    <artifactId>midscene-parent</artifactId>
+    <groupId>io.github.alstafeev</groupId>
+    <version>0.1.2</version>
+  </parent>
+
+  <url>https://github.com/alstafeev/midscene-java</url>
 
 </project>

@@ -1,26 +1,31 @@
 # Midscene Java
 
-**Midscene Java** is an AI-powered automation SDK that allows you to control web browsers using natural language instructions. It integrates with standard Selenium WebDriver (and Playwright) to serve as an intelligent agent layer on top of your existing test automation framework.
+**Midscene Java** is an AI-powered automation SDK that allows you to control web browsers using natural language
+instructions. It integrates with standard Selenium WebDriver (and Playwright) to serve as an intelligent agent layer on
+top of your existing test automation framework.
 
 ## Features
 
-*   **Natural Language Control**: "Search for 'Headphones' and click the first result."
-*   **Multimodal Understanding**: Uses screenshots to understand the page context.
-*   **Smart Planning**: Automatically plans, executes, and retries actions.
-*   **Framework Agnostic**: Works alongside your existing Selenium or Playwright tests.
-*   **Flexible Configuration**: Supports OpenAI (GPT-4o) and Google Gemini models.
-*   **Visual Reports**: Generates HTML reports with execution traces and screenshots.
+* **Natural Language Control**: "Search for 'Headphones' and click the first result."
+* **Multimodal Understanding**: Uses screenshots to understand the page context.
+* **Smart Planning**: Automatically plans, executes, and retries actions.
+* **Framework Agnostic**: Works alongside your existing Selenium or Playwright tests.
+* **Flexible Configuration**: Supports OpenAI (GPT-4o) and Google Gemini models.
+* **Visual Reports**: Generates HTML reports with execution traces and screenshots.
 
 ## Modules
 
-*   **`midscene-core`**: The brain of the agent. Contains the `Planner`, `Executor`, and `Orchestrator`. Pure Java, no browser dependencies.
-*   **`midscene-web`**: Adapters for browser automation tools (Selenium, Playwright).
-*   **`midscene-visualizer`**: Generates visual HTML reports from execution contexts.
+* **`midscene-core`**: The brain of the agent. Contains the `Planner`, `Executor`, and `Orchestrator`. Pure Java, no
+  browser dependencies.
+* **`midscene-web`**: Adapters for browser automation tools (Selenium, Playwright).
+* **`midscene-visualizer`**: Generates visual HTML reports from execution contexts.
 
 ## Installation
 
 ### Build Locally
-Currently, Midscene Java is available as a source build. Clone this repository and install it to your local Maven repository:
+
+Currently, Midscene Java is available as a source build. Clone this repository and install it to your local Maven
+repository:
 
 ```bash
 git clone https://github.com/alstafeev/midscene-java.git
@@ -29,18 +34,20 @@ mvn clean install
 ```
 
 ### Add Dependencies
+
 Add the necessary dependencies to your project's `pom.xml`:
 
 ```xml
+
 <dependency>
-    <groupId>io.github.alstafeev</groupId>
-    <artifactId>midscene-web</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+  <groupId>io.github.alstafeev</groupId>
+  <artifactId>midscene-web</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
 </dependency>
 <dependency>
-    <groupId>io.github.alstafeev</groupId>
-    <artifactId>midscene-visualizer</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+<groupId>io.github.alstafeev</groupId>
+<artifactId>midscene-visualizer</artifactId>
+<version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -49,9 +56,10 @@ Add the necessary dependencies to your project's `pom.xml`:
 Here is how to use Midscene in a standard Selenium test, including report generation.
 
 ### Prerequisites
-*   Java 21 (Recommended) or Java 17+
-*   Maven
-*   `OPENAI_API_KEY` or `GEMINI_API_KEY` environment variable set.
+
+* Java 21 (Recommended) or Java 17+
+* Maven
+* `OPENAI_API_KEY` or `GEMINI_API_KEY` environment variable set.
 
 ### Code Snippet
 
@@ -106,11 +114,11 @@ public class MidsceneDemoTest {
   @AfterEach
   void shutDownDriver() {
     if (agent != null) {
-        // Generate report after test
-        Visualizer.generateReport(agent.getContext(), Paths.get("midscene-report.html"));
+      // Generate report after test
+      Visualizer.generateReport(agent.getContext(), Paths.get("midscene-report.html"));
     }
     if (driver != null) {
-        driver.quit();
+      driver.quit();
     }
   }
 }

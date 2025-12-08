@@ -1,14 +1,15 @@
 package com.midscene.visualizer;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.net.URLEncoder;
 
 public class MidsceneReportGenerator {
+
   private final String reportTemplate;
 
   public MidsceneReportGenerator() throws IOException {

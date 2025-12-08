@@ -4,58 +4,107 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>midscene-parent</artifactId>
-  <name>Midscene Java</name>
-  <description>Midscene is an AI-powered automation SDK that simplifies testing and automation by allowing you to interact with web pages using natural language instructions.</description>
-  <url>https://github.com/alstafeev/midscene-java</url>
-
-  <licenses>
-    <license>
-      <name>The Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <id>alstafeev</id>
-      <name>Aleksei Stafeev</name>
-      <email>alekseystafeev@gmail.com</email>
-      <roles>
-        <role>Developer</role>
-        <role>Maintainer</role>
-      </roles>
-      <timezone>Europe/Madrid</timezone>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git://github.com/alstafeev/midscene-java.git</connection>
-    <developerConnection>scm:git:ssh://github.com:alstafeev/midscene-java.git</developerConnection>
-    <url>http://github.com/alstafeev/midscene-java/tree/main</url>
-  </scm>
-
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <artifactId>lombok</artifactId>
+              <groupId>org.projectlombok</groupId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.13.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+            <id>attach-sources</id>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.3.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <id>attach-javadocs</id>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.6.3</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.1.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.0.1</version>
+      </plugin>
+      <plugin>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <configuration>
+          <autoPublish>true</autoPublish>
+          <publishingServerId>central</publishingServerId>
+        </configuration>
+        <extensions>true</extensions>
+        <groupId>org.sonatype.central</groupId>
+        <version>0.9.0</version>
+      </plugin>
+    </plugins>
+  </build>
   <dependencyManagement>
     <dependencies>
       <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
       <dependency>
-        <groupId>tools.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
+        <groupId>tools.jackson.core</groupId>
         <version>${jackson.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
       <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
         <version>${jackson.jsr.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
-        <version>${junit.version}</version>
+        <groupId>org.junit.jupiter</groupId>
         <scope>test</scope>
+        <version>${junit.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
@@ -82,37 +131,61 @@
 
       <!-- https://mvnrepository.com/artifact/org.awaitility/awaitility -->
       <dependency>
-        <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
+        <groupId>org.awaitility</groupId>
         <version>${awaitility.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
       <dependency>
-        <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
+        <groupId>org.mockito</groupId>
         <scope>test</scope>
+        <version>${mockito.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
       <dependency>
-        <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
-        <version>${mockito.version}</version>
+        <groupId>org.mockito</groupId>
         <scope>test</scope>
+        <version>${mockito.version}</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.exasol/maven-project-version-getter -->
       <dependency>
-        <groupId>com.exasol</groupId>
         <artifactId>maven-project-version-getter</artifactId>
+        <groupId>com.exasol</groupId>
         <version>${maven.version.getter.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <description>Midscene is an AI-powered automation SDK that simplifies testing and automation by allowing you to
+    interact with web pages using natural language instructions.
+  </description>
+
+  <developers>
+    <developer>
+      <email>alekseystafeev@gmail.com</email>
+      <id>alstafeev</id>
+      <name>Aleksei Stafeev</name>
+      <roles>
+        <role>Developer</role>
+        <role>Maintainer</role>
+      </roles>
+      <timezone>Europe/Madrid</timezone>
+    </developer>
+  </developers>
 
   <groupId>io.github.alstafeev</groupId>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
   <modelVersion>4.0.0</modelVersion>
 
   <modules>
@@ -120,102 +193,32 @@
     <module>midscene-web</module>
     <module>midscene-visualizer</module>
   </modules>
+  <name>Midscene Java</name>
 
   <packaging>pom</packaging>
 
   <properties>
-    <jackson.version>3.0.2</jackson.version>
-    <jackson.jsr.version>2.20.1</jackson.jsr.version>
     <awaitility.version>4.3.0</awaitility.version>
+    <jackson.jsr.version>2.20.1</jackson.jsr.version>
+    <jackson.version>3.0.2</jackson.version>
     <junit.version>5.14.1</junit.version>
     <log4j2.version>2.25.1</log4j2.version>
     <lombok.version>1.18.42</lombok.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mockito.version>5.11.0</mockito.version>
     <maven.version.getter.version>1.2.2</maven.version.getter.version>
+    <mockito.version>5.11.0</mockito.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version> <configuration>
-        <source>${maven.compiler.source}</source>
-        <target>${maven.compiler.target}</target>
-        <annotationProcessorPaths>
-          <path>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-          </path>
-        </annotationProcessorPaths>
-      </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.1</version>
-        <configuration>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <version>0.9.0</version>
-        <extensions>true</extensions>
-        <configuration>
-          <publishingServerId>central</publishingServerId>
-          <autoPublish>true</autoPublish>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <scm>
+    <connection>scm:git:git://github.com/alstafeev/midscene-java.git</connection>
+    <developerConnection>scm:git:ssh://github.com:alstafeev/midscene-java.git</developerConnection>
+    <url>http://github.com/alstafeev/midscene-java/tree/main</url>
+  </scm>
 
-  <version>0.1.1</version>
+  <url>https://github.com/alstafeev/midscene-java</url>
+
+  <version>0.1.2</version>
 
 </project>

@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class ContextEvent {
 
-  private String type; // e.g., "INSTRUCTION", "PLAN", "ACTION", "ERROR", "SCREENSHOT"
+  private String type; // e.g., "INSTRUCTION", "PLAN", "ACTION", "ERROR", "SCREENSHOT_BEFORE", "SCREENSHOT_AFTER"
   private String description;
   private String data; // JSON or text data
   private String screenshotBase64;

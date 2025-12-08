@@ -51,7 +51,7 @@ public class Orchestrator {
     context.logInstruction("Query: " + question);
 
     String screenshotBase64 = driver.getScreenshotBase64();
-    context.logScreenshot(screenshotBase64);
+    context.logScreenshotBefore(screenshotBase64);
 
     String answer = planner.query(question, screenshotBase64);
     context.logAction("Answer: " + answer);
@@ -76,7 +76,7 @@ public class Orchestrator {
     for (int i = 0; i < maxRetries && !finished; i++) {
       try {
         String screenshotBase64 = driver.getScreenshotBase64();
-        context.logScreenshot(screenshotBase64);
+        context.logScreenshotBefore(screenshotBase64);
 
         String pageSource = driver.getPageSource();
 
@@ -88,6 +88,7 @@ public class Orchestrator {
           for (ActionsItem action : plan.getActions()) {
             executor.execute(action);
           }
+          context.logScreenshotAfter(driver.getScreenshotBase64());
           finished = true;
         } else {
           throw new RuntimeException("No actions returned by AI.");

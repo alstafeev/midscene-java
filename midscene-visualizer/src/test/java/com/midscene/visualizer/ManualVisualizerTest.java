@@ -14,7 +14,9 @@ public class ManualVisualizerTest {
     Context context = new Context();
     context.logInstruction("Open Google");
     context.logAction("Navigating to https://google.com");
-    context.logScreenshot(
+    context.logScreenshotBefore(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==");
+    context.logScreenshotAfter(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==");
     context.logInstruction("Search for 'Midscene'");
     context.logPlan("{\"actions\": [{\"type\": \"CLICK\", \"description\": \"Click search box\"}]}");

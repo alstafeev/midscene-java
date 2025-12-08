@@ -50,9 +50,18 @@ public class Context {
         .build());
   }
 
-  public void logScreenshot(String screenshotBase64) {
+  public void logScreenshotBefore(String screenshotBase64) {
     logEvent(ContextEvent.builder()
-        .type("SCREENSHOT")
+        .type("SCREENSHOT_BEFORE")
+        .description("Screenshot captured")
+        .screenshotBase64(screenshotBase64)
+        .timestamp(System.currentTimeMillis())
+        .build());
+  }
+
+  public void logScreenshotAfter(String screenshotBase64) {
+    logEvent(ContextEvent.builder()
+        .type("SCREENSHOT_AFTER")
         .description("Screenshot captured")
         .screenshotBase64(screenshotBase64)
         .timestamp(System.currentTimeMillis())
