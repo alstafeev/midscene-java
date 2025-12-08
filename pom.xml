@@ -211,9 +211,9 @@
   </properties>
 
   <scm>
-    <connection>scm:git:git://github.com/alstafeev/midscene-java.git</connection>
-    <developerConnection>scm:git:ssh://github.com:alstafeev/midscene-java.git</developerConnection>
-    <url>http://github.com/alstafeev/midscene-java/tree/main</url>
+    <connection>scm:git:https://github.com/alstafeev/midscene-java.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/alstafeev/midscene-java.git</developerConnection>
+    <url>https://github.com/alstafeev/midscene-java</url>
   </scm>
 
   <url>https://github.com/alstafeev/midscene-java</url>
