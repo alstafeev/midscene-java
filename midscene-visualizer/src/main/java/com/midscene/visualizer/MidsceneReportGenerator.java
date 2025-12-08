@@ -70,11 +70,14 @@ public class MidsceneReportGenerator {
   }
 
   private String injectScript(String html, String script) {
-    int closeHtmlIndex = html.lastIndexOf("</html>");
-    if (closeHtmlIndex == -1) {
+    int injectionIndex = html.lastIndexOf("</body>");
+    if (injectionIndex == -1) {
+      injectionIndex = html.lastIndexOf("</html>");
+    }
+    if (injectionIndex == -1) {
       // Fallback: append to end
       return html + "\n" + script;
     }
-    return html.substring(0, closeHtmlIndex) + "\n" + script + "\n</html>";
+    return html.substring(0, injectionIndex) + "\n" + script + "\n" + html.substring(injectionIndex);
   }
 }

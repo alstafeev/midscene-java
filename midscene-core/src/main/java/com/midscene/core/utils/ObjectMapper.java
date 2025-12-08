@@ -1,14 +1,14 @@
 package com.midscene.core.utils;
 
 import lombok.experimental.UtilityClass;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 @UtilityClass
 public class ObjectMapper {
 
-  private final tools.jackson.databind.ObjectMapper MAPPER = JsonMapper.builder()
+  private final com.fasterxml.jackson.databind.ObjectMapper MAPPER = JsonMapper.builder()
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true)
@@ -18,11 +18,19 @@ public class ObjectMapper {
   public <T> T mapResponseToClass(String jsonResponse, Class<T> mappedClass) {
     String clearedJson = cleanMarkdown(jsonResponse);
 
-    return MAPPER.readValue(clearedJson, mappedClass);
+    try {
+      return MAPPER.readValue(clearedJson, mappedClass);
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      throw new RuntimeException("Failed to decode json response", e);
+    }
   }
 
   public String writeValueAsString(Object value) {
-    return MAPPER.writeValueAsString(value);
+    try {
+      return MAPPER.writeValueAsString(value);
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      throw new RuntimeException("Failed to encode json", e);
+    }
   }
 
   private String cleanMarkdown(String input) {
