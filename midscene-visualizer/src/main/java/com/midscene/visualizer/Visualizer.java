@@ -39,7 +39,7 @@ public class Visualizer {
     List<Map<String, Object>> tasks = new ArrayList<>();
     for (ContextEvent event : context.getEvents()) {
       Map<String, Object> task = new HashMap<>();
-      task.put("type", "gametask");
+      task.put("type", event.getType() != null ? event.getType().toLowerCase() : "gametask");
       task.put("name", event.getDescription());
       task.put("status", "finished");
       task.put("ts", event.getTimestamp());
@@ -48,7 +48,16 @@ public class Visualizer {
       Map<String, Object> log = new HashMap<>();
       log.put("data", event.getData());
       if (event.getScreenshotBase64() != null) {
-        task.put("img", event.getScreenshotBase64());
+        String base64 = event.getScreenshotBase64();
+        if (!base64.startsWith("data:image")) {
+          base64 = "data:image/png;base64," + base64;
+        }
+        Map<String, Object> screenshotRecord = new HashMap<>();
+        screenshotRecord.put("type", "screenshot");
+        screenshotRecord.put("ts", event.getTimestamp());
+        screenshotRecord.put("screenshot", base64);
+        task.put("recorder", java.util.Collections.singletonList(screenshotRecord));
+        task.put("img", base64);
       }
 
       tasks.add(task);
