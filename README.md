@@ -42,12 +42,12 @@ Add the necessary dependencies to your project's `pom.xml`:
 <dependency>
   <groupId>io.github.alstafeev</groupId>
   <artifactId>midscene-web</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.6</version>
 </dependency>
 <dependency>
 <groupId>io.github.alstafeev</groupId>
 <artifactId>midscene-visualizer</artifactId>
-<version>0.1.0-SNAPSHOT</version>
+<version>0.1.6</version>
 </dependency>
 ```
 
@@ -194,7 +194,8 @@ You can configure the agent using `MidsceneConfig`:
 
 ```java
 MidsceneConfig config = MidsceneConfig.builder()
-    .provider(ModelProvider.GEMINI)      // Choose OPENAI or GEMINI
+    .provider(ModelProvider.OPENAI)     // Choose OPENAI or GEMINI
+    .baseUrl("https://llm-url/")        // Set base URL for LLM model
     .apiKey("your-api-key")              // Set API Key
     .modelName("gemini-2.5-pro")         // Specific model version
     .timeoutMs(60000)                    // Timeout in milliseconds
