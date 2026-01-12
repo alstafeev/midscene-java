@@ -81,7 +81,7 @@ public class MidsceneConfig {
         modelName = provider.getModelName();
       }
       if (baseUrl == null || baseUrl.isEmpty()) {
-        modelName = provider.getBaseUrl();
+        baseUrl = provider.getBaseUrl();
       }
       return new MidsceneConfig(this);
     }
