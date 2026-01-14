@@ -1,10 +1,8 @@
 package com.midscene.core.agent;
 
 import com.midscene.core.config.MidsceneConfig;
-import com.midscene.core.config.ModelProvider;
-import com.midscene.core.model.AIModel;
-import com.midscene.core.model.GeminiModel;
-import com.midscene.core.model.OpenAIModel;
+import com.midscene.core.context.Context;
+import com.midscene.core.model.*;
 import com.midscene.core.service.PageDriver;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.log4j.Log4j2;
@@ -27,8 +25,12 @@ public class Agent {
    */
   public static Agent create(MidsceneConfig config, PageDriver driver) {
     AIModel model = switch (config.getProvider()) {
-      case ModelProvider.OPENAI -> new OpenAIModel(config.getApiKey(), config.getModelName());
-      case ModelProvider.GEMINI -> new GeminiModel(config.getApiKey(), config.getModelName());
+      case OPENAI -> new OpenAIModel(config.getApiKey(), config.getModelName());
+      case GEMINI -> new GeminiModel(config.getApiKey(), config.getModelName());
+      case ANTHROPIC -> new AnthropicModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
+      case MISTRAL -> new MistralModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
+      case AZURE_OPEN_AI -> new AzureOpenAiModel(config.getApiKey(), config.getBaseUrl());
+      case OLLAMA -> new OllamaModel(config.getBaseUrl(), config.getModelName());
     };
 
     return new Agent(driver, model);
@@ -68,7 +70,7 @@ public class Agent {
    *
    * @return The execution context
    */
-  public com.midscene.core.context.Context getContext() {
+  public Context getContext() {
     return orchestrator.getContext();
   }
 }

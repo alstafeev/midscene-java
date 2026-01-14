@@ -156,6 +156,15 @@
         <groupId>com.exasol</groupId>
         <version>${maven.version.getter.version}</version>
       </dependency>
+
+      <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-bom -->
+      <dependency>
+        <groupId>dev.langchain4j</groupId>
+        <artifactId>langchain4j-bom</artifactId>
+        <version>${langchain4j.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <description>Midscene is an AI-powered automation SDK that simplifies testing and automation by allowing you to
@@ -196,6 +205,7 @@
   <packaging>pom</packaging>
 
   <properties>
+    <langchain4j.version>1.10.0</langchain4j.version>
     <awaitility.version>4.3.0</awaitility.version>
     <jackson.version>2.17.0</jackson.version>
     <junit.version>5.14.1</junit.version>
