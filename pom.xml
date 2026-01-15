@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>midscene-parent</artifactId>
   <build>
@@ -97,6 +98,13 @@
         <version>${jackson.version}</version>
       </dependency>
 
+      <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml -->
+      <dependency>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <version>${jackson.version}</version>
+      </dependency>
+
       <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
       <dependency>
         <artifactId>junit-jupiter</artifactId>
@@ -159,11 +167,11 @@
 
       <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-bom -->
       <dependency>
-        <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-bom</artifactId>
-        <version>${langchain4j.version}</version>
-        <type>pom</type>
+        <groupId>dev.langchain4j</groupId>
         <scope>import</scope>
+        <type>pom</type>
+        <version>${langchain4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -205,10 +213,10 @@
   <packaging>pom</packaging>
 
   <properties>
-    <langchain4j.version>1.10.0</langchain4j.version>
     <awaitility.version>4.3.0</awaitility.version>
     <jackson.version>2.17.0</jackson.version>
     <junit.version>5.14.1</junit.version>
+    <langchain4j.version>1.10.0</langchain4j.version>
     <log4j2.version>2.25.1</log4j2.version>
     <lombok.version>1.18.42</lombok.version>
     <maven.compiler.source>21</maven.compiler.source>
@@ -221,8 +229,8 @@
   <scm>
     <connection>scm:git:https://github.com/alstafeev/midscene-java.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/alstafeev/midscene-java.git</developerConnection>
-    <url>https://github.com/alstafeev/midscene-java</url>
     <tag>HEAD</tag>
+    <url>https://github.com/alstafeev/midscene-java</url>
   </scm>
 
   <url>https://github.com/alstafeev/midscene-java</url>
