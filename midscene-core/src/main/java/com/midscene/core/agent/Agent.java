@@ -31,14 +31,14 @@ public class Agent {
 
   public Agent(PageDriver driver, AIModel aiModel) {
     this.driver = driver;
-    this.orchestrator = new Orchestrator(driver, aiModel);
     this.cache = TaskCache.disabled();
+    this.orchestrator = new Orchestrator(driver, aiModel, this.cache);
   }
 
   public Agent(PageDriver driver, AIModel aiModel, TaskCache cache) {
     this.driver = driver;
-    this.orchestrator = new Orchestrator(driver, aiModel);
     this.cache = cache != null ? cache : TaskCache.disabled();
+    this.orchestrator = new Orchestrator(driver, aiModel, this.cache);
   }
 
   /**

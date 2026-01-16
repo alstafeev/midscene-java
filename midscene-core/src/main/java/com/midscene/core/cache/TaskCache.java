@@ -155,6 +155,31 @@ public class TaskCache {
   }
 
   /**
+   * Invalidates (removes) a specific cached entry.
+   * Use this when a cached plan fails and needs to be refreshed.
+   *
+   * @param prompt the prompt to invalidate
+   * @return true if the entry was removed, false if it wasn't cached
+   */
+  public boolean invalidate(String prompt) {
+    if (mode == CacheMode.DISABLED) {
+      return false;
+    }
+
+    String key = generateCacheKey(prompt);
+    PlanningResponse removed = memoryCache.remove(key);
+    
+    if (removed != null) {
+      log.info("Invalidated cache entry for prompt key: {}", key.substring(0, 8));
+      if (cacheFilePath != null) {
+        saveToFile();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Returns the number of cached entries.
    *
    * @return cache size

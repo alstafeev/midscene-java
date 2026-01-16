@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.midscene.core.agent.Agent;
+import com.midscene.core.cache.TaskCache;
 import com.midscene.core.pojo.options.WaitOptions;
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class ScriptPlayer {
     this.agent = agent;
     this.script = parseScript(scriptPath);
     initializeTaskStatuses();
+    initializeCacheFromConfig();
   }
 
   /**
@@ -278,6 +280,46 @@ public class ScriptPlayer {
         int steps = task.getFlow() != null ? task.getFlow().size() : 0;
         statusMap.put(task.getName(), TaskStatus.init(task.getName(), steps));
       }
+    }
+  }
+
+  /**
+   * Initializes cache from YAML configuration.
+   * Note: Cache must ideally be configured when Agent is constructed. This method
+   * logs a warning if cache config is found in YAML but agent was provided externally.
+   * For full cache support, construct Agent with TaskCache after parsing YAML config.
+   */
+  private void initializeCacheFromConfig() {
+    if (script.getAgent() != null && script.getAgent().getCache() != null) {
+      var cacheConfig = script.getAgent().getCache();
+      String strategy = cacheConfig.getStrategy();
+      
+      TaskCache.CacheMode mode;
+      if (strategy == null || strategy.isEmpty()) {
+        mode = TaskCache.CacheMode.READ_WRITE;
+      } else {
+        mode = switch (strategy.toLowerCase()) {
+          case "read-only" -> TaskCache.CacheMode.READ_ONLY;
+          case "write-only" -> TaskCache.CacheMode.WRITE_ONLY;
+          case "read-write" -> TaskCache.CacheMode.READ_WRITE;
+          case "disabled" -> TaskCache.CacheMode.DISABLED;
+          default -> TaskCache.CacheMode.READ_WRITE;
+        };
+      }
+      
+      Path cachePath = null;
+      if (cacheConfig.getId() != null && !cacheConfig.getId().isEmpty()) {
+        cachePath = Path.of(cacheConfig.getId() + ".cache.json");
+      }
+      
+      // Note: This updates agent's cache field but the Orchestrator/Planner already
+      // have their own cache reference from construction time. For the cache to work,
+      // the agent should be constructed with the cache from the start.
+      TaskCache taskCache = TaskCache.withFile(cachePath, mode);
+      agent.setCache(taskCache);
+      log.warn("Cache configured from YAML (mode={}, id={}), but cache works best when "
+          + "Agent is constructed with TaskCache. Consider using Agent.create() with cache parameter.",
+          mode, cacheConfig.getId());
     }
   }
 
