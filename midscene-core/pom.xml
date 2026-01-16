@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>midscene-core</artifactId>
   <dependencies>
@@ -13,6 +14,12 @@
     <dependency>
       <artifactId>jackson-datatype-jsr310</artifactId>
       <groupId>com.fasterxml.jackson.datatype</groupId>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml -->
+    <dependency>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
@@ -42,26 +49,26 @@
 
     <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-anthropic -->
     <dependency>
-      <groupId>dev.langchain4j</groupId>
       <artifactId>langchain4j-anthropic</artifactId>
+      <groupId>dev.langchain4j</groupId>
     </dependency>
 
     <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-mistral-ai -->
     <dependency>
-      <groupId>dev.langchain4j</groupId>
       <artifactId>langchain4j-mistral-ai</artifactId>
+      <groupId>dev.langchain4j</groupId>
     </dependency>
 
     <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-azure-open-ai -->
     <dependency>
-      <groupId>dev.langchain4j</groupId>
       <artifactId>langchain4j-azure-open-ai</artifactId>
+      <groupId>dev.langchain4j</groupId>
     </dependency>
 
     <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-ollama -->
     <dependency>
-      <groupId>dev.langchain4j</groupId>
       <artifactId>langchain4j-ollama</artifactId>
+      <groupId>dev.langchain4j</groupId>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->

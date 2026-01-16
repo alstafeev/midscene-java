@@ -13,12 +13,23 @@ public class MidsceneReportGenerator {
   private final String reportTemplate;
 
   public MidsceneReportGenerator() throws IOException {
+    String template;
     try (var inputStream = getClass().getClassLoader().getResourceAsStream("report_template.html")) {
       if (inputStream == null) {
         throw new IOException("report_template.html not found in classpath");
       }
-      this.reportTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+      template = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
+
+    String favicon;
+    try (var inputStream = getClass().getClassLoader().getResourceAsStream("report_favicon.txt")) {
+      if (inputStream == null) {
+        throw new IOException("report_favicon.txt not found in classpath");
+      }
+      favicon = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8).trim();
+    }
+
+    this.reportTemplate = template.replace("__FAVICON__", favicon);
   }
 
   public MidsceneReportGenerator(Path templatePath) throws IOException {

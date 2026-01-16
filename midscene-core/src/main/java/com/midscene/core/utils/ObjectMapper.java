@@ -1,9 +1,9 @@
 package com.midscene.core.utils;
 
-import lombok.experimental.UtilityClass;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ObjectMapper {
