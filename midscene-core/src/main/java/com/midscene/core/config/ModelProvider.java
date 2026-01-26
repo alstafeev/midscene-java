@@ -6,7 +6,9 @@ public enum ModelProvider {
   ANTHROPIC("claude-3-5-sonnet-20240620", "https://api.anthropic.com/v1/"),
   MISTRAL("small-latest", "https://api.mistral.ai/v1"),
   AZURE_OPEN_AI("gpt-4o", "https://openai.azure.com/"),
-  OLLAMA("llama3.1", "http://localhost:11434/");
+  OLLAMA("llama3.1", "http://localhost:11434/"),
+  QWEN("qwen-plus", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+  THOUSAND_QUESTIONS("qwen-plus", "https://dashscope.aliyuncs.com/compatible-mode/v1");
 
   private final String modelName;
   private final String baseUrl;

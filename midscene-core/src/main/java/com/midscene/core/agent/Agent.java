@@ -10,6 +10,7 @@ import com.midscene.core.model.GeminiModel;
 import com.midscene.core.model.MistralModel;
 import com.midscene.core.model.OllamaModel;
 import com.midscene.core.model.OpenAIModel;
+import com.midscene.core.model.QwenModel;
 import com.midscene.core.pojo.options.InputOptions;
 import com.midscene.core.pojo.options.LocateOptions;
 import com.midscene.core.pojo.options.ScrollOptions;
@@ -30,15 +31,17 @@ public class Agent {
   private TaskCache cache;
 
   public Agent(PageDriver driver, AIModel aiModel) {
-    this.driver = driver;
-    this.cache = TaskCache.disabled();
-    this.orchestrator = new Orchestrator(driver, aiModel, this.cache);
+    this(driver, aiModel, TaskCache.disabled(), 3);
   }
 
   public Agent(PageDriver driver, AIModel aiModel, TaskCache cache) {
+    this(driver, aiModel, cache, 3);
+  }
+
+  public Agent(PageDriver driver, AIModel aiModel, TaskCache cache, int maxRetries) {
     this.driver = driver;
     this.cache = cache != null ? cache : TaskCache.disabled();
-    this.orchestrator = new Orchestrator(driver, aiModel, this.cache);
+    this.orchestrator = new Orchestrator(driver, aiModel, this.cache, maxRetries);
   }
 
   /**
@@ -56,9 +59,10 @@ public class Agent {
       case MISTRAL -> new MistralModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
       case AZURE_OPEN_AI -> new AzureOpenAiModel(config.getApiKey(), config.getBaseUrl());
       case OLLAMA -> new OllamaModel(config.getBaseUrl(), config.getModelName());
+      case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
     };
 
-    return new Agent(driver, model);
+    return new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
   }
 
   /**
@@ -77,9 +81,10 @@ public class Agent {
       case MISTRAL -> new MistralModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
       case AZURE_OPEN_AI -> new AzureOpenAiModel(config.getApiKey(), config.getBaseUrl());
       case OLLAMA -> new OllamaModel(config.getBaseUrl(), config.getModelName());
+      case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
     };
 
-    return new Agent(driver, model, cache);
+    return new Agent(driver, model, cache, config.getMaxRetries());
   }
 
   /**

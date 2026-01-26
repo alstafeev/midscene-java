@@ -7,6 +7,7 @@ public class MidsceneConfig {
   private final String modelName;
   private final String baseUrl;
   private final long timeoutMs;
+  private final int maxRetries;
 
   private MidsceneConfig(Builder builder) {
     this.provider = builder.provider;
@@ -14,6 +15,7 @@ public class MidsceneConfig {
     this.modelName = builder.modelName;
     this.baseUrl = builder.baseUrl;
     this.timeoutMs = builder.timeoutMs;
+    this.maxRetries = builder.maxRetries;
   }
 
   public static Builder builder() {
@@ -40,6 +42,10 @@ public class MidsceneConfig {
     return baseUrl;
   }
 
+  public int getMaxRetries() {
+    return maxRetries;
+  }
+
   public static class Builder {
 
     private ModelProvider provider = ModelProvider.OPENAI;
@@ -47,6 +53,7 @@ public class MidsceneConfig {
     private String modelName;
     private String baseUrl;
     private long timeoutMs = 30000; // Default 30s
+    private int maxRetries = 3;
 
     public Builder provider(ModelProvider provider) {
       this.provider = provider;
@@ -70,6 +77,11 @@ public class MidsceneConfig {
 
     public Builder baseUrl(String baseUrl) {
       this.baseUrl = baseUrl;
+      return this;
+    }
+
+    public Builder maxRetries(int maxRetries) {
+      this.maxRetries = maxRetries;
       return this;
     }
 
