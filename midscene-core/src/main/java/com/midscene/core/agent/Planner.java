@@ -1,6 +1,7 @@
 package com.midscene.core.agent;
 
 import com.midscene.core.agent.promt.PromptManager;
+import com.midscene.core.cache.TaskCache;
 import com.midscene.core.model.AIModel;
 import com.midscene.core.pojo.planning.PlanningResponse;
 import com.midscene.core.utils.ObjectMapper;
@@ -18,13 +19,28 @@ import lombok.extern.log4j.Log4j2;
 public class Planner {
 
   private final AIModel aiModel;
+  private final TaskCache cache;
 
   public Planner(AIModel aiModel) {
+    this(aiModel, TaskCache.disabled());
+  }
+
+  public Planner(AIModel aiModel, TaskCache cache) {
     this.aiModel = aiModel;
+    this.cache = cache != null ? cache : TaskCache.disabled();
   }
 
   public PlanningResponse plan(String instruction, String screenshotBase64, String pageSource,
       List<ChatMessage> history) {
+
+    // Check cache for first attempts only (empty history means fresh attempt)
+    if (history.isEmpty()) {
+      PlanningResponse cached = cache.get(instruction);
+      if (cached != null) {
+        log.info("Cache hit for instruction: {}", instruction);
+        return cached;
+      }
+    }
 
     UserMessage message;
     if (history.isEmpty()) {
@@ -53,6 +69,13 @@ public class Planner {
       PlanningResponse planningResponse = ObjectMapper.mapResponseToClass(responseJson,
           PlanningResponse.class);
       planningResponse.setDescription(chatResponse.metadata().tokenUsage().toString());
+      
+      // Store in cache for first successful attempts
+      if (history.size() == 2) { // First attempt: 1 user message + 1 AI response
+        cache.put(instruction, planningResponse);
+        log.debug("Cached planning response for instruction: {}", instruction);
+      }
+      
       return planningResponse;
     } catch (Exception e) {
       log.error("Failed to parse plan {}", e.getMessage());
@@ -72,5 +95,16 @@ public class Planner {
     String response = chatResponse.aiMessage().text();
     log.debug("AI Query Response: {}", response);
     return response;
+  }
+
+  /**
+   * Invalidates (removes) a cached plan for the given instruction.
+   * Call this when execution of a cached plan fails.
+   *
+   * @param instruction the instruction whose cached plan should be invalidated
+   * @return true if the cache entry was removed
+   */
+  public boolean invalidateCache(String instruction) {
+    return cache.invalidate(instruction);
   }
 }

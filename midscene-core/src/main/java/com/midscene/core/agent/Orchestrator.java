@@ -1,5 +1,6 @@
 package com.midscene.core.agent;
 
+import com.midscene.core.cache.TaskCache;
 import com.midscene.core.context.Context;
 import com.midscene.core.model.AIModel;
 import com.midscene.core.pojo.planning.ActionsItem;
@@ -23,7 +24,11 @@ public class Orchestrator {
   private final Context context;
 
   public Orchestrator(PageDriver driver, AIModel aiModel) {
-    this(driver, new Planner(aiModel), new Executor(driver));
+    this(driver, new Planner(aiModel, TaskCache.disabled()), new Executor(driver));
+  }
+
+  public Orchestrator(PageDriver driver, AIModel aiModel, TaskCache cache) {
+    this(driver, new Planner(aiModel, cache), new Executor(driver));
   }
 
   /**
@@ -72,6 +77,7 @@ public class Orchestrator {
     List<ChatMessage> history = new ArrayList<>();
     int maxRetries = 3;
     boolean finished = false;
+    boolean cacheInvalidated = false;
 
     for (int i = 0; i < maxRetries && !finished; i++) {
       try {
@@ -97,6 +103,17 @@ public class Orchestrator {
       } catch (Exception e) {
         log.error("Failed to execute plan (Attempt {}) {}", i + 1, e.getMessage());
         context.logError("Attempt " + (i + 1) + " failed: " + e.getMessage());
+        
+        // On first failure, invalidate cache and clear history to force fresh AI call
+        if (!cacheInvalidated && i == 0) {
+          boolean wasInvalidated = planner.invalidateCache(instruction);
+          if (wasInvalidated) {
+            log.info("Invalidated stale cache for instruction: {}", instruction);
+            history.clear(); // Clear history to get fresh plan from AI
+            cacheInvalidated = true;
+          }
+        }
+        
         history.add(UserMessage.from("Error executing plan: " + e.getMessage()));
       }
     }
