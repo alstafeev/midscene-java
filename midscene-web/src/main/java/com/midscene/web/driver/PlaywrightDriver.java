@@ -242,6 +242,12 @@ public class PlaywrightDriver implements PageDriver {
     waitUntilPageLoaded();
   }
 
+  @Override
+  public Object executeScript(String script) {
+    waitUntilPageLoaded();
+    return page.evaluate(script);
+  }
+
   // ========== Private Helper Methods ==========
 
   private void waitUntilPageLoaded() {

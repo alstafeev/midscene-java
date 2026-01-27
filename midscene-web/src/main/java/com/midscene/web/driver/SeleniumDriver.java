@@ -276,6 +276,12 @@ public class SeleniumDriver implements PageDriver {
     waitUntilPageLoaded();
   }
 
+  @Override
+  public Object executeScript(String script) {
+    waitUntilPageLoaded();
+    return ((JavascriptExecutor) driver).executeScript(script);
+  }
+
   // ========== Private Helper Methods ==========
 
   public void waitUntilPageLoaded() {
