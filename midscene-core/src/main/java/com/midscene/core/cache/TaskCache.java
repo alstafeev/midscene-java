@@ -3,13 +3,16 @@ package com.midscene.core.cache;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.midscene.core.pojo.planning.PlanningResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +30,8 @@ public class TaskCache {
   private final Map<String, PlanningResponse> memoryCache = new ConcurrentHashMap<>();
   private CacheMode mode;
   private Path cacheFilePath;
+  private final Object fileLock = new Object();
+
   /**
    * Creates a new TaskCache with the given mode and optional file path.
    *
@@ -125,7 +130,7 @@ public class TaskCache {
     log.debug("Cached response for prompt key: {}", key.substring(0, 8));
 
     if (cacheFilePath != null) {
-      saveToFile();
+      appendToFile(key, response);
     }
   }
 
@@ -241,38 +246,76 @@ public class TaskCache {
     }
 
     try {
-      String json = Files.readString(cacheFilePath);
-      Map<String, PlanningResponse> loaded = MAPPER.readValue(
-          json, new TypeReference<Map<String, PlanningResponse>>() {
-          });
-      memoryCache.putAll(loaded);
-      log.info("Loaded {} cache entries from {}", loaded.size(), cacheFilePath);
+      if (Files.size(cacheFilePath) == 0) {
+        return;
+      }
+
+      try (com.fasterxml.jackson.core.JsonParser parser = MAPPER.createParser(cacheFilePath.toFile())) {
+        MappingIterator<Map<String, PlanningResponse>> it = MAPPER.readValues(
+            parser, new TypeReference<Map<String, PlanningResponse>>() {
+            });
+        while (it.hasNext()) {
+          Map<String, PlanningResponse> batch = it.next();
+          memoryCache.putAll(batch);
+        }
+      }
+      log.info("Loaded {} cache entries from {}", memoryCache.size(), cacheFilePath);
     } catch (IOException e) {
       log.warn("Failed to load cache from file: {}", e.getMessage());
     }
   }
 
   /**
-   * Saves cache entries to file.
+   * Appends a single cache entry to the file.
+   */
+  private void appendToFile(String key, PlanningResponse response) {
+    if (cacheFilePath == null) {
+      return;
+    }
+
+    synchronized (fileLock) {
+      try {
+        // Ensure parent directory exists
+        Path parent = cacheFilePath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+          Files.createDirectories(parent);
+        }
+
+        // We write a minimal JSON object for this entry
+        Map<String, PlanningResponse> entry = Collections.singletonMap(key, response);
+        String json = MAPPER.writeValueAsString(entry);
+
+        Files.writeString(cacheFilePath, json + System.lineSeparator(),
+            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+      } catch (IOException e) {
+        log.warn("Failed to append cache to file: {}", e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Saves (rewrites) all cache entries to file.
    */
   private void saveToFile() {
     if (cacheFilePath == null) {
       return;
     }
 
-    try {
-      // Ensure parent directory exists
-      Path parent = cacheFilePath.getParent();
-      if (parent != null && !Files.exists(parent)) {
-        Files.createDirectories(parent);
-      }
+    synchronized (fileLock) {
+      try {
+        // Ensure parent directory exists
+        Path parent = cacheFilePath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+          Files.createDirectories(parent);
+        }
 
-      String json = MAPPER.writerWithDefaultPrettyPrinter()
-          .writeValueAsString(memoryCache);
-      Files.writeString(cacheFilePath, json);
-      log.debug("Saved {} cache entries to {}", memoryCache.size(), cacheFilePath);
-    } catch (IOException e) {
-      log.warn("Failed to save cache to file: {}", e.getMessage());
+        String json = MAPPER.writerWithDefaultPrettyPrinter()
+            .writeValueAsString(memoryCache);
+        Files.writeString(cacheFilePath, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        log.debug("Saved {} cache entries to {}", memoryCache.size(), cacheFilePath);
+      } catch (IOException e) {
+        log.warn("Failed to save cache to file: {}", e.getMessage());
+      }
     }
   }
 
