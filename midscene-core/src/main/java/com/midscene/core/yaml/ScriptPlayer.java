@@ -114,7 +114,6 @@ public class ScriptPlayer {
       log.info("Navigating to URL: {}", url);
       try {
         agent.getDriver().navigate(url);
-        Thread.sleep(1000); // Brief wait for page load
       } catch (Exception e) {
         log.error("Failed to navigate to URL: {}", url, e);
         // If navigation fails, considering implementation, we might want to stop or
