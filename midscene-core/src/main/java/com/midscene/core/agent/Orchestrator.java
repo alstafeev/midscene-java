@@ -20,15 +20,20 @@ public class Orchestrator {
   private final PageDriver driver;
   private final Planner planner;
   private final Executor executor;
+  private final int maxRetries;
   @Getter
   private final Context context;
 
   public Orchestrator(PageDriver driver, AIModel aiModel) {
-    this(driver, new Planner(aiModel, TaskCache.disabled()), new Executor(driver));
+    this(driver, new Planner(aiModel, TaskCache.disabled()), new Executor(driver), 3);
   }
 
   public Orchestrator(PageDriver driver, AIModel aiModel, TaskCache cache) {
-    this(driver, new Planner(aiModel, cache), new Executor(driver));
+    this(driver, new Planner(aiModel, cache), new Executor(driver), 3);
+  }
+
+  public Orchestrator(PageDriver driver, AIModel aiModel, TaskCache cache, int maxRetries) {
+    this(driver, new Planner(aiModel, cache), new Executor(driver), maxRetries);
   }
 
   /**
@@ -39,9 +44,14 @@ public class Orchestrator {
    * @param executor The executor
    */
   protected Orchestrator(PageDriver driver, Planner planner, Executor executor) {
+    this(driver, planner, executor, 3);
+  }
+
+  protected Orchestrator(PageDriver driver, Planner planner, Executor executor, int maxRetries) {
     this.driver = driver;
     this.planner = planner;
     this.executor = executor;
+    this.maxRetries = maxRetries;
     this.context = new Context();
   }
 
@@ -75,7 +85,6 @@ public class Orchestrator {
     context.logInstruction(instruction);
 
     List<ChatMessage> history = new ArrayList<>();
-    int maxRetries = 3;
     boolean finished = false;
     boolean cacheInvalidated = false;
 
