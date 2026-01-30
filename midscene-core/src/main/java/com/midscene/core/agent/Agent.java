@@ -26,6 +26,22 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Agent {
 
+  private static final String INIT_MUTATION_OBSERVER_SCRIPT = """
+      window.__midscene_mutation_happened = true; // Set to true initially to ensure first check
+      if (!window.__midscene_observer) {
+        window.__midscene_observer = new MutationObserver(() => {
+          window.__midscene_mutation_happened = true;
+        });
+        window.__midscene_observer.observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
+      }
+      """;
+
+  private static final String CHECK_AND_RESET_MUTATION_SCRIPT = """
+      var happened = window.__midscene_mutation_happened;
+      window.__midscene_mutation_happened = false;
+      return happened;
+      """;
+
   private final Orchestrator orchestrator;
   private final PageDriver driver;
   private TaskCache cache;
@@ -357,11 +373,31 @@ public class Agent {
     long checkIntervalMs = options.getCheckIntervalMs();
     long startTime = System.currentTimeMillis();
 
+    // Initialize MutationObserver
+    try {
+      driver.executeScript(INIT_MUTATION_OBSERVER_SCRIPT);
+    } catch (Exception e) {
+      log.warn("Failed to inject MutationObserver, falling back to polling: {}", e.getMessage());
+    }
+
     while (System.currentTimeMillis() - startTime < timeoutMs) {
-      boolean result = aiBoolean("Is the following currently true? " + assertion);
-      if (result) {
-        log.info("Wait condition satisfied: {}", assertion);
-        return;
+      boolean shouldCheck = true;
+      try {
+        Object result = driver.executeScript(CHECK_AND_RESET_MUTATION_SCRIPT);
+        if (result instanceof Boolean) {
+          shouldCheck = (Boolean) result;
+        }
+      } catch (Exception e) {
+        // Fallback to true if script fails
+        shouldCheck = true;
+      }
+
+      if (shouldCheck) {
+        boolean result = aiBoolean("Is the following currently true? " + assertion);
+        if (result) {
+          log.info("Wait condition satisfied: {}", assertion);
+          return;
+        }
       }
 
       try {
