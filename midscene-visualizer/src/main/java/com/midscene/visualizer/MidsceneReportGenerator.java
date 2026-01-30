@@ -12,9 +12,23 @@ public class MidsceneReportGenerator {
 
   private final String reportTemplate;
 
+  private static volatile String cachedTemplate = null;
+  private static final Object lock = new Object();
+
   public MidsceneReportGenerator() throws IOException {
+    if (cachedTemplate == null) {
+      synchronized (lock) {
+        if (cachedTemplate == null) {
+          cachedTemplate = loadTemplate();
+        }
+      }
+    }
+    this.reportTemplate = cachedTemplate;
+  }
+
+  private static String loadTemplate() throws IOException {
     String template;
-    try (var inputStream = getClass().getClassLoader().getResourceAsStream("report_template.html")) {
+    try (var inputStream = MidsceneReportGenerator.class.getClassLoader().getResourceAsStream("report_template.html")) {
       if (inputStream == null) {
         throw new IOException("report_template.html not found in classpath");
       }
@@ -22,14 +36,14 @@ public class MidsceneReportGenerator {
     }
 
     String favicon;
-    try (var inputStream = getClass().getClassLoader().getResourceAsStream("report_favicon.txt")) {
+    try (var inputStream = MidsceneReportGenerator.class.getClassLoader().getResourceAsStream("report_favicon.txt")) {
       if (inputStream == null) {
         throw new IOException("report_favicon.txt not found in classpath");
       }
       favicon = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8).trim();
     }
 
-    this.reportTemplate = template.replace("__FAVICON__", favicon);
+    return template.replace("__FAVICON__", favicon);
   }
 
   public MidsceneReportGenerator(Path templatePath) throws IOException {
