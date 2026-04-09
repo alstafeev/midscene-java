@@ -124,12 +124,6 @@ public class PromptManager {
    * @return the formatted planning prompt
    */
   public static String constructPlanningPrompt(String instruction) {
-    try {
-      instruction = com.fasterxml.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(instruction);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to format prompt", e);
-    }
-
     return String.format(PLANNING_PROMPT, getActionSpaceDescription(), instruction);
   }
 
@@ -140,12 +134,6 @@ public class PromptManager {
    * @return the formatted retry prompt
    */
   public static String constructRetryPrompt(String instruction) {
-    try {
-      instruction = com.fasterxml.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(instruction);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to format prompt", e);
-    }
-
     return String.format("""
         Previous attempt failed. Analyze the new screenshot and page source carefully.
         Consider what may have gone wrong and try an alternative approach.
@@ -162,12 +150,6 @@ public class PromptManager {
    * @return the formatted query prompt
    */
   public static String constructQueryPrompt(String question) {
-    try {
-      question = com.fasterxml.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(question);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to format prompt", e);
-    }
-
     return String.format("""
         You are an AI assistant analyzing a web page screenshot.
         
@@ -184,12 +166,6 @@ public class PromptManager {
    * @return the formatted extraction prompt
    */
   public static String constructExtractionPrompt(String dataDemand) {
-    try {
-      dataDemand = com.fasterxml.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(dataDemand);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to format prompt", e);
-    }
-
     return String.format(EXTRACTION_PROMPT, dataDemand);
   }
 
@@ -200,12 +176,6 @@ public class PromptManager {
    * @return the formatted assertion prompt
    */
   public static String constructAssertionPrompt(String assertion) {
-    try {
-      assertion = com.fasterxml.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(assertion);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to format prompt", e);
-    }
-
     return String.format(ASSERTION_PROMPT, assertion);
   }
 

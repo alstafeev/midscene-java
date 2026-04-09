@@ -1,6 +1,5 @@
 package com.midscene.core.context;
 
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import lombok.Getter;

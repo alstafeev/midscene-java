@@ -16,8 +16,14 @@ import com.midscene.core.pojo.options.LocateOptions;
 import com.midscene.core.pojo.options.ScrollOptions;
 import com.midscene.core.pojo.options.WaitOptions;
 import com.midscene.core.utils.WaitingUtils;
+import java.util.concurrent.atomic.AtomicBoolean;
 import com.midscene.core.service.PageDriver;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.log4j.Log4j2;
 
 /**
@@ -46,6 +52,16 @@ public class Agent {
   private final Orchestrator orchestrator;
   private final PageDriver driver;
   private TaskCache cache;
+  // Custom executor for async actions to allow proper thread interruption
+  private final ExecutorService asyncExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
+    private final AtomicInteger counter = new AtomicInteger(1);
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread t = new Thread(r, "Agent-Async-" + counter.getAndIncrement());
+      t.setDaemon(true);
+      return t;
+    }
+  });
 
   public Agent(PageDriver driver, AIModel aiModel) {
     this(driver, aiModel, TaskCache.disabled(), 3);
@@ -372,7 +388,6 @@ public class Agent {
   public void aiWaitFor(String assertion, WaitOptions options) {
     long timeoutMs = options.getTimeoutMs();
     long checkIntervalMs = options.getCheckIntervalMs();
-    long startTime = System.currentTimeMillis();
 
     // Initialize MutationObserver
     try {
@@ -381,7 +396,9 @@ public class Agent {
       log.warn("Failed to inject MutationObserver, falling back to polling: {}", e.getMessage());
     }
 
-    WaitingUtils.waitUntilWithoutException(timeoutMs / 1000, checkIntervalMs, () -> {
+    AtomicBoolean conditionSatisfied = new AtomicBoolean(false);
+    long timeoutSecs = (long) Math.ceil(timeoutMs / 1000.0);
+    WaitingUtils.waitUntilWithoutException(timeoutSecs, checkIntervalMs, () -> {
       boolean shouldCheck = true;
       try {
         Object result = driver.executeScript(CHECK_AND_RESET_MUTATION_SCRIPT);
@@ -396,17 +413,19 @@ public class Agent {
         boolean result = aiBoolean("Is the following currently true? " + assertion);
         if (result) {
           log.info("Wait condition satisfied: {}", assertion);
+          conditionSatisfied.set(true);
           return true;
         }
       }
       return false;
     }, "Wait for AI condition: " + assertion);
 
-    boolean finalResult = aiBoolean("Is the following currently true? " + assertion);
-    if (!finalResult && options.isThrowOnTimeout()) {
-      throw new RuntimeException("Wait timeout: " + assertion);
-    } else if (!finalResult) {
-      log.warn("Wait timed out: {}", assertion);
+    if (!conditionSatisfied.get()) {
+      if (options.isThrowOnTimeout()) {
+        throw new RuntimeException("Wait timeout: " + assertion);
+      } else {
+        log.warn("Wait timed out: {}", assertion);
+      }
     }
   }
 
@@ -428,7 +447,30 @@ public class Agent {
    * @return A CompletableFuture representing the action execution
    */
   public CompletableFuture<Void> aiActionAsync(String instruction) {
-    return CompletableFuture.runAsync(() -> aiAction(instruction));
+    CompletableFuture<Void> future = new CompletableFuture<>();
+
+    // Using ExecutorService to get a Future that can be properly interrupted on cancel
+    Future<?> task = asyncExecutor.submit(() -> {
+      try {
+        aiAction(instruction);
+        if (!future.isCancelled()) {
+          future.complete(null);
+        }
+      } catch (Throwable t) {
+        if (!future.isCancelled()) {
+          future.completeExceptionally(t);
+        }
+      }
+    });
+
+    // When the CompletableFuture gets cancelled, interrupt the executing task
+    future.whenComplete((res, ex) -> {
+      if (future.isCancelled()) {
+        task.cancel(true);
+      }
+    });
+
+    return future;
   }
 
   // ========== Utility Methods ==========
