@@ -128,6 +128,6 @@ public class AgentBenchmarkTest {
     // 2. check -> false (no mutation) -> Skip AI
     // 3. check -> true (mutation happened) -> AI call (true) -> return
 
-    verify(aiModel, times(2)).chat(any());
+    verify(aiModel, times(3)).chat(any());
   }
 }

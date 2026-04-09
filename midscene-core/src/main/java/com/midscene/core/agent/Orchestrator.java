@@ -123,7 +123,11 @@ public class Orchestrator {
           }
         }
         
-        history.add(UserMessage.from("Error executing plan: " + e.getMessage()));
+        String reflectionMsg = String.format(
+            "Previous execution failed with error: %s.\n" +
+            "Please reflect on what went wrong, verify the page state, and formulate a new plan " +
+            "to complete the instruction: %s", e.getMessage(), instruction);
+        history.add(UserMessage.from(reflectionMsg));
       }
     }
 

@@ -1,14 +1,14 @@
 package com.midscene.core.context;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import lombok.Getter;
 
 public class Context {
 
   @Getter
-  private final List<ContextEvent> events = Collections.synchronizedList(new ArrayList<>());
+  private final List<ContextEvent> events = new CopyOnWriteArrayList<>();
 
   public void logEvent(ContextEvent event) {
     events.add(event);

@@ -15,6 +15,7 @@ import com.midscene.core.pojo.options.InputOptions;
 import com.midscene.core.pojo.options.LocateOptions;
 import com.midscene.core.pojo.options.ScrollOptions;
 import com.midscene.core.pojo.options.WaitOptions;
+import com.midscene.core.utils.WaitingUtils;
 import com.midscene.core.service.PageDriver;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.log4j.Log4j2;
@@ -380,7 +381,7 @@ public class Agent {
       log.warn("Failed to inject MutationObserver, falling back to polling: {}", e.getMessage());
     }
 
-    while (System.currentTimeMillis() - startTime < timeoutMs) {
+    WaitingUtils.waitUntilWithoutException(timeoutMs / 1000, checkIntervalMs, () -> {
       boolean shouldCheck = true;
       try {
         Object result = driver.executeScript(CHECK_AND_RESET_MUTATION_SCRIPT);
@@ -388,7 +389,6 @@ public class Agent {
           shouldCheck = (Boolean) result;
         }
       } catch (Exception e) {
-        // Fallback to true if script fails
         shouldCheck = true;
       }
 
@@ -396,22 +396,18 @@ public class Agent {
         boolean result = aiBoolean("Is the following currently true? " + assertion);
         if (result) {
           log.info("Wait condition satisfied: {}", assertion);
-          return;
+          return true;
         }
       }
+      return false;
+    }, "Wait for AI condition: " + assertion);
 
-      try {
-        Thread.sleep(checkIntervalMs);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new RuntimeException("Wait interrupted", e);
-      }
-    }
-
-    if (options.isThrowOnTimeout()) {
+    boolean finalResult = aiBoolean("Is the following currently true? " + assertion);
+    if (!finalResult && options.isThrowOnTimeout()) {
       throw new RuntimeException("Wait timeout: " + assertion);
+    } else if (!finalResult) {
+      log.warn("Wait timed out: {}", assertion);
     }
-    log.warn("Wait timed out: {}", assertion);
   }
 
   /**
