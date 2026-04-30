@@ -42,8 +42,11 @@ public class TaskCache {
     this.mode = mode;
     this.cacheFilePath = cacheFilePath;
 
-    if (cacheFilePath != null && mode != CacheMode.DISABLED) {
-      loadFromFile();
+    if (cacheFilePath != null) {
+      validatePath(cacheFilePath);
+      if (mode != CacheMode.DISABLED) {
+        loadFromFile();
+      }
     }
   }
 
@@ -194,6 +197,15 @@ public class TaskCache {
   }
 
   /**
+   * Gets the cache file path.
+   *
+   * @return the cache file path
+   */
+  public Path getCacheFilePath() {
+    return cacheFilePath;
+  }
+
+  /**
    * Gets the current cache mode.
    *
    * @return the cache mode
@@ -209,6 +221,29 @@ public class TaskCache {
    */
   public void setMode(CacheMode mode) {
     this.mode = mode;
+  }
+
+  /**
+   * Validates that the cache file path is within the allowed directory.
+   *
+   * @param path the path to validate
+   * @throws IllegalArgumentException if the path is invalid or outside the allowed directory
+   */
+  private void validatePath(Path path) {
+    try {
+      Path canonicalPath = path.toFile().getCanonicalFile().toPath();
+      Path currentDir = new java.io.File(".").getCanonicalFile().toPath();
+      Path tempDir = new java.io.File(System.getProperty("java.io.tmpdir")).getCanonicalFile().toPath();
+
+      if (!canonicalPath.startsWith(currentDir) && !canonicalPath.startsWith(tempDir)) {
+        throw new SecurityException("Access denied: Path traversal detected in cache file path: " + path);
+      }
+    } catch (Exception e) {
+      if (e instanceof SecurityException) {
+        throw (SecurityException) e;
+      }
+      throw new IllegalArgumentException("Invalid cache file path: " + path, e);
+    }
   }
 
   /**

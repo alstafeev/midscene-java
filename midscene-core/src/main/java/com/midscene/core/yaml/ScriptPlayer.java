@@ -308,7 +308,20 @@ public class ScriptPlayer {
       
       Path cachePath = null;
       if (cacheConfig.getId() != null && !cacheConfig.getId().isEmpty()) {
-        cachePath = Path.of(cacheConfig.getId() + ".cache.json");
+        // Resolve cache path against current directory and ensure it stays within it
+        try {
+          Path currentDir = new java.io.File(".").getCanonicalFile().toPath();
+          Path resolvedPath = currentDir.resolve(cacheConfig.getId() + ".cache.json").toFile().getCanonicalFile().toPath();
+          if (resolvedPath.startsWith(currentDir)) {
+            cachePath = Path.of(cacheConfig.getId() + ".cache.json");
+          } else {
+            log.warn("Cache ID escapes base directory: {}. Cache will be disabled.", cacheConfig.getId());
+            mode = TaskCache.CacheMode.DISABLED;
+          }
+        } catch (IOException e) {
+          log.warn("Failed to resolve cache path for ID: {}. Cache will be disabled.", cacheConfig.getId(), e);
+          mode = TaskCache.CacheMode.DISABLED;
+        }
       }
       
       // Note: This updates agent's cache field but the Orchestrator/Planner already
