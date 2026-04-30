@@ -80,7 +80,7 @@ public class MidsceneReportGenerator {
         // Ensure attributes start with "playwright_" if following the pattern, or use
         // as is.
         String value = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
-        attrString.append(String.format(" %s=\"%s\"", key, value));
+        attrString.append(" ").append(key).append("=\"").append(value).append("\"");
       }
     }
     // Basic HTML escaping for safety inside the script block if needed,
@@ -88,10 +88,12 @@ public class MidsceneReportGenerator {
     // </script>.
     // A simple replacement for </script> is recommended.
     String safeJson = dumpJson.replace("</script>", "<\\/script>");
-    return String.format(
-        "<script type=\"midscene_web_dump\"%s>\n%s\n</script>",
-        attrString.toString(),
-        safeJson);
+    return new StringBuilder("<script type=\"midscene_web_dump\"")
+        .append(attrString)
+        .append(">\n")
+        .append(safeJson)
+        .append("\n</script>")
+        .toString();
   }
 
   private String injectScript(String html, String script) {
