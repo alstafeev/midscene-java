@@ -256,9 +256,28 @@ public class ScriptPlayer {
   }
 
   private void executeJavaScript(YamlFlowItem item) {
-    Object result = agent.getDriver().executeScript(item.getJavascript());
+    if (!agent.isJavaScriptExecutionEnabled()) {
+      throw new SecurityException("JavaScript execution is disabled. "
+          + "Enable it in MidsceneConfig if you trust this script.");
+    }
+    String script = item.getJavascript();
+    validateJavaScript(script);
+    Object result = agent.getDriver().executeScript(script);
     if (item.getName() != null && result != null) {
       results.put(item.getName(), result);
+    }
+  }
+
+  private void validateJavaScript(String script) {
+    if (script == null) {
+      return;
+    }
+    String lowerScript = script.toLowerCase();
+    if (lowerScript.contains("eval(") || lowerScript.contains("eval ")
+        || lowerScript.contains("new function(") || lowerScript.contains("new function ")
+        || lowerScript.contains("function.constructor")) {
+      throw new SecurityException("Potential malicious JavaScript detected: "
+          + "use of 'eval' or 'Function' constructor is not allowed.");
     }
   }
 

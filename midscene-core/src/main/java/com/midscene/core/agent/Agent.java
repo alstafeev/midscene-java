@@ -45,6 +45,7 @@ public class Agent {
   private final Orchestrator orchestrator;
   private final PageDriver driver;
   private TaskCache cache;
+  private boolean javaScriptExecutionEnabled = false;
 
   public Agent(PageDriver driver, AIModel aiModel) {
     this(driver, aiModel, TaskCache.disabled(), 3);
@@ -78,7 +79,9 @@ public class Agent {
       case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
     };
 
-    return new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
+    Agent agent = new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
+    agent.setJavaScriptExecutionEnabled(config.isJavaScriptExecutionEnabled());
+    return agent;
   }
 
   /**
@@ -100,7 +103,9 @@ public class Agent {
       case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
     };
 
-    return new Agent(driver, model, cache, config.getMaxRetries());
+    Agent agent = new Agent(driver, model, cache, config.getMaxRetries());
+    agent.setJavaScriptExecutionEnabled(config.isJavaScriptExecutionEnabled());
+    return agent;
   }
 
   /**
@@ -471,6 +476,24 @@ public class Agent {
    */
   public void setCache(TaskCache cache) {
     this.cache = cache != null ? cache : TaskCache.disabled();
+  }
+
+  /**
+   * Checks if JavaScript execution is enabled for this agent.
+   *
+   * @return true if enabled, false otherwise
+   */
+  public boolean isJavaScriptExecutionEnabled() {
+    return javaScriptExecutionEnabled;
+  }
+
+  /**
+   * Enables or disables JavaScript execution for this agent.
+   *
+   * @param enabled true to enable, false to disable
+   */
+  public void setJavaScriptExecutionEnabled(boolean enabled) {
+    this.javaScriptExecutionEnabled = enabled;
   }
 
   // ========== Private Helper Methods ==========

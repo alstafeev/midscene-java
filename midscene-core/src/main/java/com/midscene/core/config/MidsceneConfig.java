@@ -8,6 +8,7 @@ public class MidsceneConfig {
   private final String baseUrl;
   private final long timeoutMs;
   private final int maxRetries;
+  private final boolean javaScriptExecutionEnabled;
 
   private MidsceneConfig(Builder builder) {
     this.provider = builder.provider;
@@ -16,6 +17,7 @@ public class MidsceneConfig {
     this.baseUrl = builder.baseUrl;
     this.timeoutMs = builder.timeoutMs;
     this.maxRetries = builder.maxRetries;
+    this.javaScriptExecutionEnabled = builder.javaScriptExecutionEnabled;
   }
 
   public static Builder builder() {
@@ -46,6 +48,10 @@ public class MidsceneConfig {
     return maxRetries;
   }
 
+  public boolean isJavaScriptExecutionEnabled() {
+    return javaScriptExecutionEnabled;
+  }
+
   public static class Builder {
 
     private ModelProvider provider = ModelProvider.OPENAI;
@@ -54,6 +60,7 @@ public class MidsceneConfig {
     private String baseUrl;
     private long timeoutMs = 30000; // Default 30s
     private int maxRetries = 3;
+    private boolean javaScriptExecutionEnabled = false;
 
     public Builder provider(ModelProvider provider) {
       this.provider = provider;
@@ -82,6 +89,11 @@ public class MidsceneConfig {
 
     public Builder maxRetries(int maxRetries) {
       this.maxRetries = maxRetries;
+      return this;
+    }
+
+    public Builder javaScriptExecutionEnabled(boolean enabled) {
+      this.javaScriptExecutionEnabled = enabled;
       return this;
     }
 
