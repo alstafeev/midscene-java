@@ -308,7 +308,15 @@ public class ScriptPlayer {
       
       Path cachePath = null;
       if (cacheConfig.getId() != null && !cacheConfig.getId().isEmpty()) {
-        cachePath = Path.of(cacheConfig.getId() + ".cache.json");
+        // Sanitize cache ID to prevent path traversal
+        String sanitizedId = cacheConfig.getId().replace('\\', '/');
+        Path idPath = Path.of(sanitizedId).getFileName();
+        if (idPath != null) {
+          String fileName = idPath.toString();
+          if (!fileName.isEmpty() && !fileName.equals(".") && !fileName.equals("..")) {
+            cachePath = Path.of(fileName + ".cache.json");
+          }
+        }
       }
       
       // Note: This updates agent's cache field but the Orchestrator/Planner already
