@@ -2,6 +2,7 @@ package com.midscene.core.context;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExecutionDump {
+
+  /**
+   * Stable unique identifier for this execution run.
+   */
+  private String id;
 
   /**
    * Log timestamp.
@@ -52,6 +58,7 @@ public class ExecutionDump {
    */
   public static ExecutionDump fromContext(Context context, String name) {
     ExecutionDump dump = ExecutionDump.builder()
+        .id(UUID.randomUUID().toString())
         .logTime(System.currentTimeMillis())
         .name(name)
         .tasks(new ArrayList<>())
@@ -67,6 +74,7 @@ public class ExecutionDump {
 
   private static ExecutionTask eventToTask(ContextEvent event) {
     ExecutionTask.ExecutionTaskBuilder builder = ExecutionTask.builder()
+        .taskId(UUID.randomUUID().toString())
         .type(mapEventTypeToTaskType(event.getType()))
         .status("finished")
         .log(event.getData());
@@ -83,13 +91,18 @@ public class ExecutionDump {
       builder.usage(ExecutionTask.AIUsageInfo.builder()
           .totalTokens(event.getTokensUsed())
           .modelName(event.getModelName())
-          .timeCostMs(event.getDurationMs())
+          .timeCost(event.getDurationMs())
           .build());
     }
 
     // Add thought/reasoning
     if (event.getThought() != null) {
       builder.thought(event.getThought());
+    }
+
+    // Add sub-goals
+    if (event.getSubGoals() != null) {
+      builder.subGoals(event.getSubGoals());
     }
 
     // Add recorder for screenshots
@@ -102,7 +115,10 @@ public class ExecutionDump {
       recorder.add(ExecutionTask.RecorderItem.builder()
           .type("screenshot")
           .ts(event.getTimestamp())
-          .screenshot(base64)
+          .screenshot(ExecutionTask.ScreenshotInfo.builder()
+              .base64(base64)
+              .capturedAt(event.getTimestamp())
+              .build())
           .build());
       builder.recorder(recorder);
     }
@@ -110,7 +126,7 @@ public class ExecutionDump {
     // Add error info
     if (event.getError() != null) {
       builder.status("failed");
-      builder.error(event.getError());
+      builder.errorMessage(event.getError());
     }
 
     // Add output

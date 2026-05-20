@@ -55,7 +55,7 @@ public class MidsceneReportGenerator {
   }
 
   /**
-   * Generates a self-contained HTML report.
+   * Generates a self-contained HTML report or appends to an existing one.
    *
    * @param dumpJson   The JSON string containing the execution dump.
    * @param attributes Optional map of attributes (e.g. test_duration, status).
@@ -63,10 +63,23 @@ public class MidsceneReportGenerator {
    */
   public void generateReport(String dumpJson, Map<String, String> attributes, Path outputPath) throws IOException {
     String scriptTag = buildScriptTag(dumpJson, attributes);
+    String baseUrlFixScript = "\n<script>\n" +
+        "    if (window.location.protocol === 'file:') {\n" +
+        "      const baseEl = document.createElement('base');\n" +
+        "      baseEl.href = window.location.href;\n" +
+        "      document.head.appendChild(baseEl);\n" +
+        "    }\n" +
+        "  </script>\n";
 
-    // Midscene report template expects the data script to be before the closing
-    // </html> tag
-    String finalHtml = injectScript(reportTemplate, scriptTag);
+    String finalHtml;
+    if (Files.exists(outputPath)) {
+      // Append mode: insert before </html>
+      String existingHtml = Files.readString(outputPath, StandardCharsets.UTF_8);
+      finalHtml = injectScript(existingHtml, scriptTag);
+    } else {
+      // Initial create: use template
+      finalHtml = injectScript(reportTemplate, baseUrlFixScript + scriptTag);
+    }
 
     Files.writeString(outputPath, finalHtml, StandardCharsets.UTF_8,
         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -89,7 +102,7 @@ public class MidsceneReportGenerator {
     // A simple replacement for </script> is recommended.
     String safeJson = dumpJson.replace("</script>", "<\\/script>");
     return String.format(
-        "<script type=\"midscene_web_dump\"%s>\n%s\n</script>",
+        "<script type=\"midscene_web_dump\" type=\"application/json\"%s>\n%s\n</script>",
         attrString.toString(),
         safeJson);
   }

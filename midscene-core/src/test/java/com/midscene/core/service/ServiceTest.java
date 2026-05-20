@@ -3,10 +3,10 @@ package com.midscene.core.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import com.midscene.core.model.AIModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.Map;
@@ -16,22 +16,22 @@ import org.junit.jupiter.api.Test;
 class ServiceTest {
 
   private PageDriver driver;
-  private AIModel aiModel;
+  private ChatModel chatModel;
   private Service service;
 
   @BeforeEach
   void setUp() {
     driver = mock(PageDriver.class);
-    aiModel = mock(AIModel.class);
+    chatModel = mock(ChatModel.class);
     when(driver.getScreenshotBase64()).thenReturn("base64_image_data");
-    service = new Service(driver, aiModel);
+    service = new Service(driver, chatModel);
   }
 
   private void mockAiResponse(String content) {
     ChatResponse response = ChatResponse.builder()
         .aiMessage(AiMessage.from(content))
         .build();
-    when(aiModel.chat(any())).thenReturn(response);
+    when(chatModel.chat(anyList())).thenReturn(response);
   }
 
   @Test
@@ -86,8 +86,10 @@ class ServiceTest {
   @Test
   void testExtractStructuredData() {
     String mockResponse = "{\n" +
-        "  \"name\": \"John Doe\",\n" +
-        "  \"email\": \"john@example.com\",\n" +
+        "  \"data\": {\n" +
+        "    \"name\": \"John Doe\",\n" +
+        "    \"email\": \"john@example.com\"\n" +
+        "  },\n" +
         "  \"thought\": \"Extracted user info\"\n" +
         "}";
     mockAiResponse(mockResponse);

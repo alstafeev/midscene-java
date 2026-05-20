@@ -1,20 +1,19 @@
 # Midscene Java
 
-**Midscene Java** is an AI-powered automation SDK that allows you to control web browsers using natural language
-instructions. It integrates with standard Selenium WebDriver (and Playwright) to serve as an intelligent agent layer on
-top of your existing test automation framework.
+**Midscene Java** is an AI-powered automation SDK that allows you to control web browsers using natural language instructions. It integrates with standard Selenium WebDriver (and Playwright) to serve as an intelligent agent layer on top of your existing test automation framework.
 
 ## Features
 
 * **Natural Language Control**: "Search for 'Headphones' and click the first result."
 * **Advanced Interaction**: Click, type, scroll, drag-and-drop, and more using simple commands.
 * **Multimodal Understanding**: Uses screenshots to understand page context (Visual Grounding).
+* **DOM Grounding**: Automatically extracts a highly compressed JSON snapshot of the visible DOM, drastically reducing token usage and providing 100% accurate element coordinates.
 * **Smart Planning**: Automatically plans, executes, and retries actions.
 * **Service Layer**: Low-level AI capabilities for locating, extracting, and describing elements.
+* **Structured Outputs**: Relies on strict JSON responses from AI models for robust and predictable execution.
+* **Any AI Model**: Built natively on top of **LangChain4j**, allowing you to use any supported model (OpenAI, Gemini, Claude, local Ollama, etc.) with custom configurations.
 * **YAML Script Support**: Execute declarative test scripts defined in YAML.
-* **Caching**: Built-in caching for improved performance and reduced API costs.
-* **Framework Agnostic**: Works with Selenium and Playwright.
-* **Flexible Configuration**: Supports OpenAI (GPT-4o) and Google Gemini (1.5 Pro) models.
+* **Framework Agnostic**: Works seamlessly with Selenium and Playwright.
 * **Visual Reports**: Generates detailed HTML reports with execution traces, screenshots, and reasoning.
 
 ## Modules
@@ -42,20 +41,24 @@ Add the necessary dependencies to your project's `pom.xml`:
 
 ## Quick Start (Agent Mode)
 
-Midscene Agent is the primary way to interact with your application. It handles planning and execution.
+Midscene Agent is the primary way to interact with your application. Because Midscene Java relies on standard **LangChain4j**, you can inject any `ChatModel` instance directly.
 
 ```java
-// 1. Configure
-MidsceneConfig config = MidsceneConfig.builder()
-    .provider(ModelProvider.GEMINI) // or OPENAI
-    .apiKey(System.getenv("GEMINI_API_KEY"))
-    .modelName("gemini-1.5-pro")
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.chat.ChatModel;
+
+// 1. Configure the AI Model using LangChain4j
+ChatModel chatModel = OpenAiChatModel.builder()
+    .apiKey(System.getenv("OPENAI_API_KEY"))
+    .modelName("gpt-4o")
+    .responseFormat("json_object") // Recommended for robust JSON outputs
+    .temperature(0.0)
     .build();
 
 // 2. Initialize (Selenium example)
 WebDriver driver = new ChromeDriver();
 SeleniumDriver pageDriver = new SeleniumDriver(driver);
-Agent agent = Agent.create(config, pageDriver);
+Agent agent = new Agent(pageDriver, chatModel);
 
 // 3. Interact
 agent.aiAction("Search for 'Headphones' and click the first result");
@@ -64,6 +67,8 @@ agent.aiAssert("Price should be under $200");
 // 4. Generate Report
 Visualizer.generateReport(agent.getContext(), Paths.get("report.html"));
 ```
+
+*(Note: You can still use the `MidsceneConfig` utility class and `Agent.create(config, driver)` for backwards-compatible quick initialization).*
 
 ## Advanced Features
 
@@ -78,7 +83,7 @@ agent.aiInput("Username field", "admin");
 agent.aiScroll(ScrollOptions.down());
 agent.aiHover("User profile icon");
 
-// Assertions & Waist
+// Assertions & Waits
 agent.aiAssert("The login button should be visible");
 agent.aiWaitFor("Welcome message to appear");
 
@@ -92,7 +97,7 @@ boolean isLoggedIn = agent.aiBoolean("Is the user logged in?");
 Use the `Service` class for direct AI tasks without full agent planning:
 
 ```java
-Service service = new Service(pageDriver, agent.getAiModel());
+Service service = new Service(pageDriver, chatModel);
 
 // Locate element coordinates
 LocateResult result = service.locate("The blue checkout button");
@@ -132,35 +137,16 @@ ScriptResult result = player.run();
 
 ### 4. Caching
 
-Midscene caches planning results to speed up execution and save tokens.
+Midscene caches planning results to speed up execution and save tokens. You can inject a custom `TaskCache` instance when building the Agent.
 
 ```java
-// Cache is enabled by default (memory + file)
-// Configure cache behavior:
-MidsceneConfig config = MidsceneConfig.builder()
-    // ...
-    .cacheId("my_test_cache") // persistent cache file
-    .build();
+Agent agent = new Agent(pageDriver, chatModel, myTaskCache);
 ```
 
 ## Supported Drivers
 
 - **Selenium**: `new SeleniumDriver(webDriver)`
 - **Playwright**: `new PlaywrightDriver(page)`
-
-## Configuration
-
-Detailed configuration options:
-
-```java
-MidsceneConfig config = MidsceneConfig.builder()
-    .provider(ModelProvider.OPENAI)
-    .apiKey("sk-...")
-    .modelName("gpt-4o")
-    .baseUrl("https://api.openai.com/v1") // optional custom base URL
-    .timeoutMs(120000)                    // AI timeout
-    .build();
-```
 
 ## Contributing
 

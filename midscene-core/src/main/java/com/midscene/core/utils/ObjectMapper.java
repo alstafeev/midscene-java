@@ -25,6 +25,16 @@ public class ObjectMapper {
     }
   }
 
+  public <T> T mapResponseToClass(String jsonResponse, com.fasterxml.jackson.core.type.TypeReference<T> typeReference) {
+    String clearedJson = cleanMarkdown(jsonResponse);
+
+    try {
+      return MAPPER.readValue(clearedJson, typeReference);
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      throw new RuntimeException("Failed to decode json response", e);
+    }
+  }
+
   public String writeValueAsString(Object value) {
     try {
       return MAPPER.writeValueAsString(value);
@@ -34,8 +44,26 @@ public class ObjectMapper {
   }
 
   private String cleanMarkdown(String input) {
-    return input.replaceAll("^```[a-z]*\\s*", "")
-        .replaceAll("\\s*```$", "")
-        .trim();
+    if (input == null) return null;
+    
+    // Find the first occurrence of ``` (with or without language identifier)
+    int startIndex = input.indexOf("```");
+    if (startIndex != -1) {
+      // Find the end of the opening ``` line
+      int endOfStartLine = input.indexOf('\n', startIndex);
+      if (endOfStartLine != -1) {
+        startIndex = endOfStartLine + 1;
+      } else {
+        startIndex += 3; // Fallback, just skip the backticks
+      }
+      
+      // Find the closing ```
+      int endIndex = input.lastIndexOf("```");
+      if (endIndex > startIndex) {
+        input = input.substring(startIndex, endIndex);
+      }
+    }
+    
+    return input.trim();
   }
 }

@@ -1,5 +1,6 @@
 package com.midscene.core.context;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExecutionTask {
+
+  /**
+   * Unique task identifier.
+   */
+  private String taskId;
 
   /**
    * Task type (e.g., "Planning", "Insight", "Action Space", "Log").
@@ -58,9 +64,9 @@ public class ExecutionTask {
   private Object log;
 
   /**
-   * Error if task failed.
+   * Error message if task failed.
    */
-  private String error;
+  private String errorMessage;
 
   /**
    * Error stack trace.
@@ -81,21 +87,40 @@ public class ExecutionTask {
    * Recorder items (screenshots, etc.).
    */
   private List<RecorderItem> recorder;
+/**
+ * List of sub-goals for the current instruction.
+ */
+private List<SubGoal> subGoals;
 
-  /**
-   * Reasoning content from AI.
-   */
-  private String reasoningContent;
+/**
+ * Reasoning content from AI.
+ */
+@JsonProperty("reasoning_content")
+private String reasoningContent;
 
-  /**
-   * Task timing information.
+/**
+ * Represents a sub-goal in the planning process.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public static class SubGoal {
+  private Integer index;
+  private String status; // pending, running, finished
+  private String description;
+  private List<String> logs;
+}
+
+/**
+ * Task timing information.
+...
    */
   @Data
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
   public static class TaskTiming {
-
     private Long start;
     private Long end;
     private Long cost;
@@ -109,13 +134,24 @@ public class ExecutionTask {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class AIUsageInfo {
-
+    @JsonProperty("prompt_tokens")
     private Integer promptTokens;
+    
+    @JsonProperty("completion_tokens")
     private Integer completionTokens;
+    
+    @JsonProperty("total_tokens")
     private Integer totalTokens;
-    private Long timeCostMs;
+    
+    @JsonProperty("time_cost")
+    private Long timeCost;
+    
+    @JsonProperty("model_name")
     private String modelName;
+    
+    @JsonProperty("model_description")
     private String modelDescription;
+    
     private String intent;
   }
 
@@ -127,10 +163,20 @@ public class ExecutionTask {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class RecorderItem {
-
     private String type;
     private Long ts;
-    private String screenshot;
-    private String timing;
+    private ScreenshotInfo screenshot;
+  }
+
+  /**
+   * Screenshot information for recorder.
+   */
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class ScreenshotInfo {
+    private String base64;
+    private Long capturedAt;
   }
 }

@@ -45,7 +45,14 @@ public class Visualizer {
       for (ExecutionDump execution : dump.getExecutions()) {
         for (ExecutionTask task : execution.getTasks()) {
           if (task.getUsage() != null && task.getUsage().getModelName() != null) {
-            dump.addModelBrief(task.getUsage().getModelName());
+            String modelName = task.getUsage().getModelName();
+            boolean exists = dump.getModelBriefs().stream().anyMatch(b -> modelName.equals(b.getName()));
+            if (!exists) {
+              dump.getModelBriefs().add(GroupedActionDump.ModelBrief.builder()
+                  .name(modelName)
+                  .intent(task.getType().toLowerCase())
+                  .build());
+            }
           }
         }
       }
@@ -107,7 +114,14 @@ public class Visualizer {
         // Collect model briefs
         for (ExecutionTask task : execution.getTasks()) {
           if (task.getUsage() != null && task.getUsage().getModelName() != null) {
-            dump.addModelBrief(task.getUsage().getModelName());
+            String modelName = task.getUsage().getModelName();
+            boolean exists = dump.getModelBriefs().stream().anyMatch(b -> modelName.equals(b.getName()));
+            if (!exists) {
+              dump.getModelBriefs().add(GroupedActionDump.ModelBrief.builder()
+                  .name(modelName)
+                  .intent(task.getType().toLowerCase())
+                  .build());
+            }
           }
         }
       }

@@ -1,6 +1,6 @@
 package com.midscene.core.agent;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.midscene.core.cache.TaskCache;
-import com.midscene.core.model.AIModel;
+import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.WaitOptions;
 import com.midscene.core.service.PageDriver;
 import dev.langchain4j.data.message.AiMessage;
@@ -25,13 +25,13 @@ public class AgentBenchmarkTest {
   public void testAiWaitForPerformance() {
     // Mock dependencies
     PageDriver driver = mock(PageDriver.class);
-    AIModel aiModel = mock(AIModel.class);
+    ChatModel chatModel = mock(ChatModel.class);
 
     // Setup Agent
-    // Agent constructor creates an Orchestrator which uses the AIModel
-    // We need to ensure the AIModel mock is used.
-    // Agent has a constructor public Agent(PageDriver driver, AIModel aiModel)
-    Agent agent = new Agent(driver, aiModel);
+    // Agent constructor creates an Orchestrator which uses the ChatModel
+    // We need to ensure the ChatModel mock is used.
+    // Agent has a constructor public Agent(PageDriver driver, ChatModel chatModel)
+    Agent agent = new Agent(driver, chatModel);
 
     // Mock PageDriver screenshot behavior (needed for Planner.query)
     when(driver.getScreenshotBase64()).thenReturn("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
@@ -74,7 +74,7 @@ public class AgentBenchmarkTest {
         return null;
     });
 
-    // Mock AIModel behavior
+    // Mock ChatModel behavior
     // aiBoolean calls aiQuery which calls model.chat(messages)
     // We need to mock chat behavior.
     // Orchestrator logic might wrap the message.
@@ -86,7 +86,7 @@ public class AgentBenchmarkTest {
     // Iteration 3: executeScript(check) -> true. AI Called. Response: true.
     // Total AI calls: 2
 
-    when(aiModel.chat(any())).thenAnswer(new Answer<ChatResponse>() {
+    when(chatModel.chat(anyList())).thenAnswer(new Answer<ChatResponse>() {
       private int count = 0;
 
       @Override
@@ -117,7 +117,7 @@ public class AgentBenchmarkTest {
     long duration = System.currentTimeMillis() - start;
     System.out.println("Duration: " + duration + "ms");
 
-    // Verify AIModel was called 2 times (instead of 3 in the baseline scenario if we polled every time)
+    // Verify ChatModel was called 2 times (instead of 3 in the baseline scenario if we polled every time)
     // Baseline would be:
     // 1. check -> true (false)
     // 2. check -> false (false) - but polling would call AI
@@ -128,6 +128,6 @@ public class AgentBenchmarkTest {
     // 2. check -> false (no mutation) -> Skip AI
     // 3. check -> true (mutation happened) -> AI call (true) -> return
 
-    verify(aiModel, times(2)).chat(any());
+    verify(chatModel, times(2)).chat(anyList());
   }
 }

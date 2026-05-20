@@ -1,5 +1,6 @@
 package com.midscene.core.context;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -36,13 +37,18 @@ public class GroupedActionDump {
    * List of model names/descriptions used.
    */
   @Builder.Default
-  private List<String> modelBriefs = new ArrayList<>();
+  private List<ModelBrief> modelBriefs = new ArrayList<>();
 
   /**
    * List of execution dumps.
    */
   @Builder.Default
   private List<ExecutionDump> executions = new ArrayList<>();
+
+  /**
+   * Device type (e.g., "pc", "mobile").
+   */
+  private String deviceType;
 
   /**
    * Creates a GroupedActionDump from a single Context.
@@ -60,17 +66,22 @@ public class GroupedActionDump {
         .groupName(name)
         .executions(List.of(execution))
         .modelBriefs(new ArrayList<>())
+        .deviceType("pc")
         .build();
   }
 
   /**
-   * Adds a model brief to the list.
-   *
-   * @param modelBrief the model description to add
+   * Represents a brief description of a model used.
    */
-  public void addModelBrief(String modelBrief) {
-    if (modelBrief != null && !modelBriefs.contains(modelBrief)) {
-      modelBriefs.add(modelBrief);
-    }
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class ModelBrief {
+    private String intent;
+    private String name;
+    
+    @JsonProperty("modelDescription")
+    private String modelDescription;
   }
 }

@@ -1,6 +1,6 @@
 package com.midscene.core.service;
 
-import com.midscene.core.model.AIModel;
+import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.LocateOptions;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.TextContent;
@@ -19,18 +19,18 @@ import lombok.extern.log4j.Log4j2;
 public class Service {
 
   private final PageDriver driver;
-  private final AIModel aiModel;
+  private final ChatModel chatModel;
   private final Supplier<String> screenshotSupplier;
 
   /**
-   * Creates a new Service with a PageDriver and AIModel.
+   * Creates a new Service with a PageDriver and ChatModel.
    *
    * @param driver  the page driver for screenshots
-   * @param aiModel the AI model for processing
+   * @param chatModel the AI model for processing
    */
-  public Service(PageDriver driver, AIModel aiModel) {
+  public Service(PageDriver driver, ChatModel chatModel) {
     this.driver = driver;
-    this.aiModel = aiModel;
+    this.chatModel = chatModel;
     this.screenshotSupplier = driver::getScreenshotBase64;
   }
 
@@ -38,11 +38,11 @@ public class Service {
    * Creates a new Service with a custom screenshot supplier.
    *
    * @param screenshotSupplier supplier for screenshot Base64 strings
-   * @param aiModel            the AI model for processing
+   * @param chatModel            the AI model for processing
    */
-  public Service(Supplier<String> screenshotSupplier, AIModel aiModel) {
+  public Service(Supplier<String> screenshotSupplier, ChatModel chatModel) {
     this.driver = null;
-    this.aiModel = aiModel;
+    this.chatModel = chatModel;
     this.screenshotSupplier = screenshotSupplier;
   }
 
@@ -232,7 +232,7 @@ public class Service {
       message = UserMessage.from(prompt);
     }
 
-    ChatResponse response = aiModel.chat(Collections.singletonList(message));
+    ChatResponse response = chatModel.chat(Collections.singletonList(message));
     return response.aiMessage().text();
   }
 
@@ -299,20 +299,18 @@ public class Service {
 
   private LocateResult parseLocateResponse(String response) {
     try {
-      // Parse JSON response - basic implementation
-      // In production, use proper JSON parsing
-      boolean found = response.contains("\"found\": true") || response.contains("\"found\":true");
+      com.midscene.core.pojo.response.LocateAiResponse aiResponse = 
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response, com.midscene.core.pojo.response.LocateAiResponse.class);
 
-      if (!found) {
+      if (aiResponse == null || !aiResponse.isFound()) {
         return LocateResult.builder()
             .element(null)
-            .error("Element not found")
+            .error(aiResponse != null && aiResponse.getReason() != null ? aiResponse.getReason() : "Element not found")
             .build();
       }
 
-      // Extract bbox values (simplified parsing)
-      int[] bbox = extractBbox(response);
-      int[] center = extractCenter(response);
+      int[] bbox = aiResponse.getBbox() != null && aiResponse.getBbox().length >= 4 ? aiResponse.getBbox() : new int[]{0, 0, 100, 100};
+      int[] center = aiResponse.getCenter();
 
       LocateResult.Rect rect = LocateResult.Rect.builder()
           .left(bbox[0])
@@ -322,9 +320,9 @@ public class Service {
           .build();
 
       LocateResult.LocatedElement element = LocateResult.LocatedElement.builder()
-          .center(center != null ? center : rect.getCenter())
+          .center(center != null && center.length >= 2 ? center : rect.getCenter())
           .rect(rect)
-          .description(extractStringField(response, "description"))
+          .description(aiResponse.getDescription())
           .build();
 
       return LocateResult.builder()
@@ -342,12 +340,17 @@ public class Service {
 
   private ExtractResult<String> parseExtractResponse(String response) {
     try {
-      String data = extractStringField(response, "data");
-      String thought = extractStringField(response, "thought");
+      com.midscene.core.pojo.response.ExtractAiResponse<String> aiResponse = 
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(
+              response, new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<String>>() {});
+
+      if (aiResponse == null) {
+          throw new RuntimeException("Parsed response is null");
+      }
 
       return ExtractResult.<String>builder()
-          .data(data)
-          .thought(thought)
+          .data(aiResponse.getData())
+          .thought(aiResponse.getThought())
           .build();
     } catch (Exception e) {
       return ExtractResult.<String>builder()
@@ -359,20 +362,17 @@ public class Service {
   private ExtractResult<Map<String, Object>> parseStructuredExtractResponse(String response,
       Map<String, String> dataDemand) {
     try {
-      // Simplified parsing - in production use proper JSON parsing
-      String thought = extractStringField(response, "thought");
-
-      java.util.Map<String, Object> data = new java.util.HashMap<>();
-      for (String key : dataDemand.keySet()) {
-        String value = extractStringField(response, key);
-        if (value != null) {
-          data.put(key, value);
-        }
+      com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>> aiResponse = 
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(
+              response, new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>>>() {});
+              
+      if (aiResponse == null) {
+          throw new RuntimeException("Parsed response is null");
       }
 
       return ExtractResult.<Map<String, Object>>builder()
-          .data(data)
-          .thought(thought)
+          .data(aiResponse.getData())
+          .thought(aiResponse.getThought())
           .build();
     } catch (Exception e) {
       return ExtractResult.<Map<String, Object>>builder()
@@ -383,101 +383,20 @@ public class Service {
 
   private DescribeResult parseDescribeResponse(String response) {
     try {
-      String description = extractStringField(response, "description");
+      com.midscene.core.pojo.response.DescribeAiResponse aiResponse = 
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response, com.midscene.core.pojo.response.DescribeAiResponse.class);
+          
+      if (aiResponse == null) {
+          throw new RuntimeException("Parsed response is null");
+      }
+          
       return DescribeResult.builder()
-          .description(description)
+          .description(aiResponse.getDescription())
           .build();
     } catch (Exception e) {
       return DescribeResult.builder()
           .error("Failed to parse response: " + e.getMessage())
           .build();
-    }
-  }
-
-  private int[] extractBbox(String response) {
-    // Simplified bbox extraction
-    int[] defaultBbox = {0, 0, 100, 100};
-    try {
-      int bboxStart = response.indexOf("\"bbox\"");
-      if (bboxStart == -1) {
-        return defaultBbox;
-      }
-
-      int arrayStart = response.indexOf("[", bboxStart);
-      int arrayEnd = response.indexOf("]", arrayStart);
-      if (arrayStart == -1 || arrayEnd == -1) {
-        return defaultBbox;
-      }
-
-      String arrayStr = response.substring(arrayStart + 1, arrayEnd);
-      String[] parts = arrayStr.split(",");
-      if (parts.length >= 4) {
-        return new int[]{
-            Integer.parseInt(parts[0].trim()),
-            Integer.parseInt(parts[1].trim()),
-            Integer.parseInt(parts[2].trim()),
-            Integer.parseInt(parts[3].trim())
-        };
-      }
-    } catch (Exception e) {
-      log.trace("Failed to extract bbox: {}", e.getMessage());
-    }
-    return defaultBbox;
-  }
-
-  private int[] extractCenter(String response) {
-    try {
-      int centerStart = response.indexOf("\"center\"");
-      if (centerStart == -1) {
-        return null;
-      }
-
-      int arrayStart = response.indexOf("[", centerStart);
-      int arrayEnd = response.indexOf("]", arrayStart);
-      if (arrayStart == -1 || arrayEnd == -1) {
-        return null;
-      }
-
-      String arrayStr = response.substring(arrayStart + 1, arrayEnd);
-      String[] parts = arrayStr.split(",");
-      if (parts.length >= 2) {
-        return new int[]{
-            Integer.parseInt(parts[0].trim()),
-            Integer.parseInt(parts[1].trim())
-        };
-      }
-    } catch (Exception e) {
-      log.trace("Failed to extract center: {}", e.getMessage());
-    }
-    return null;
-  }
-
-  private String extractStringField(String response, String fieldName) {
-    try {
-      String searchPattern = "\"" + fieldName + "\"";
-      int fieldStart = response.indexOf(searchPattern);
-      if (fieldStart == -1) {
-        return null;
-      }
-
-      int colonPos = response.indexOf(":", fieldStart);
-      if (colonPos == -1) {
-        return null;
-      }
-
-      int valueStart = response.indexOf("\"", colonPos);
-      if (valueStart == -1) {
-        return null;
-      }
-
-      int valueEnd = response.indexOf("\"", valueStart + 1);
-      if (valueEnd == -1) {
-        return null;
-      }
-
-      return response.substring(valueStart + 1, valueEnd);
-    } catch (Exception e) {
-      return null;
     }
   }
 }

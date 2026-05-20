@@ -8,66 +8,62 @@ public class PromptManager {
 
   private static final String PLANNING_PROMPT = """
       ## Role
-      You are an expert AI agent controlling a web browser. You analyze screenshots and page source to plan and execute actions.
+      You are an expert AI agent controlling a web browser. You analyze screenshots and the DOM Elements Context (JSON) to plan and execute actions.
       
       ## Objective
-      Plan the NEXT SINGLE ACTION to accomplish the user's instruction. Consider the current page state shown in the screenshot.
+      Break down the user instruction into multiple high-level sub-goals. Update the status of sub-goals based on what you see in the current screenshot.
+      Then, plan the NEXT SINGLE ACTION to accomplish the current sub-goal.
       
-      ## Skills
-      - Image analysis and element recognition
-      - Multilingual text understanding
-      - Software UI design and testing expertise
+      ## Workflow
+      1. **Observe**: Analyze the current screenshot and the DOM Context.
+      2. **Plan**: Break down the instruction into sub-goals using `<update-plan-content>` tag if not already done.
+      3. **Monitor**: Mark completed sub-goals using `<mark-sub-goal-done>` tag.
+      4. **Act**: Plan the next single action to move towards the goal.
+      
+      ## Output Format
+      You MUST use XML tags for your response:
+      
+      <thought>Your detailed reasoning process. What do you see? What is the current state? What is the next step?</thought>
+      
+      <update-plan-content>
+        <sub-goal index="1" status="finished|pending">Description of sub-goal 1</sub-goal>
+        <sub-goal index="2" status="pending">Description of sub-goal 2</sub-goal>
+      </update-plan-content>
+      
+      <mark-sub-goal-done>
+        <sub-goal index="1" status="finished" />
+      </mark-sub-goal-done>
+      
+      <log>A brief preamble message to the user explaining what you're about to do (8-12 words).</log>
+      
+      <action-type>ACTION_TYPE</action-type>
+      <action-param-json>
+      {
+        "locate": {"id": "element_id_from_dom_json", "prompt": "description"},
+        "elementSelector": "[data-midscene-id='123']",
+        "selectorType": "BY_CSS",
+        "text": "text to type",
+        "keyName": "Enter",
+        "direction": "down",
+        "url": "https://..."
+      }
+      </action-param-json>
+      
+      If the task is complete, use:
+      <complete success="true|false">Final summary message for the user</complete>
+      
+      ## Selector Guidelines
+      - Prefer `midscene_id` from the DOM JSON (use selectorType: BY_CSS, elementSelector: [data-midscene-id="123"]).
+      - If no `midscene_id` is suitable, use the coordinates `rect` provided in the DOM JSON.
       
       ## Available Actions
       %s
-      
-      ## Workflow
-      1. Analyze the current screenshot and page state
-      2. Determine if the instruction has been completed
-      3. If not complete, plan the single next action
-      4. Return structured JSON response
-      
-      ## Selector Guidelines
-      - Prefer XPATH or CSS selectors when elements are identifiable
-      - Use coordinates (x, y) as fallback when selectors are not reliable
-      - selectorType must be `BY_XPATH` or `BY_CSS`
-      
-      ## Output Format
-      Return a JSON object with the following structure:
-      
-      ```json
-      {
-        "log": "Brief description of what you're about to do",
-        "moreActionsNeededByInstruction": true|false,
-        "actions": [
-          {
-            "type": "ACTION_TYPE",
-            "locate": {"x": 100, "y": 200},
-            "elementSelector": "//xpath/or/css",
-            "selectorType": "BY_XPATH",
-            "text": "optional text for TYPE_TEXT",
-            "keyName": "optional key for KEYBOARD_PRESS",
-            "direction": "optional for SCROLL",
-            "url": "optional for NAVIGATE"
-          }
-        ],
-        "sleep": 0,
-        "error": null
-      }
-      ```
-      
-      ### Field Descriptions
-      - **log**: A brief preamble explaining what you're about to do (use same language as instruction)
-      - **moreActionsNeededByInstruction**: true if more actions needed after this one, false if instruction will be complete
-      - **actions**: Array of action objects (usually just one). Empty if task is already complete.
-      - **sleep**: Optional milliseconds to wait after action (default 0)
-      - **error**: Set this if you cannot proceed (explain why)
       
       ## User Instruction
       
       %s
       
-      OUTPUT JSON ONLY. NO EXPLANATIONS OR MARKDOWN OUTSIDE THE JSON.
+      OUTPUT XML TAGS ONLY. NO MARKDOWN BLOCKS AROUND XML.
       """;
   private static final String EXTRACTION_PROMPT = """
       ## Role
@@ -94,27 +90,23 @@ public class PromptManager {
       - If data cannot be found, return null for data and explain in errors
       - Be precise and accurate
       
-      OUTPUT JSON ONLY.
+      OUTPUT STRICT JSON ONLY. DO NOT WRAP THE JSON IN MARKDOWN BLOCKS.
       """;
   private static final String ASSERTION_PROMPT = """
       ## Role
-      You are evaluating whether a condition is true based on a screenshot.
+      You are evaluating whether a condition is true based on a screenshot and the DOM context.
       
       ## Assertion to Verify
       %s
       
       ## Output Format
-      Return a JSON object:
-      ```json
-      {
-        "pass": true|false,
-        "thought": "Brief explanation of why the assertion passed or failed"
-      }
-      ```
+      Return in XML format:
+      <thought>Brief explanation of why the assertion passed or failed</thought>
+      <pass>true|false</pass>
       
       Be precise and evaluate ONLY based on what is visible in the screenshot.
       
-      OUTPUT JSON ONLY.
+      OUTPUT XML ONLY. DO NOT WRAP IN MARKDOWN.
       """;
 
   /**

@@ -2,7 +2,8 @@ package com.midscene.core.agent;
 
 import com.midscene.core.cache.TaskCache;
 import com.midscene.core.context.Context;
-import com.midscene.core.model.AIModel;
+import com.midscene.core.context.ExecutionTask;
+import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.planning.ActionsItem;
 import com.midscene.core.pojo.planning.PlanningResponse;
 import com.midscene.core.service.PageDriver;
@@ -24,16 +25,16 @@ public class Orchestrator {
   @Getter
   private final Context context;
 
-  public Orchestrator(PageDriver driver, AIModel aiModel) {
-    this(driver, new Planner(aiModel, TaskCache.disabled()), new Executor(driver), 3);
+  public Orchestrator(PageDriver driver, ChatModel chatModel) {
+    this(driver, new Planner(chatModel, TaskCache.disabled()), new Executor(driver), 3);
   }
 
-  public Orchestrator(PageDriver driver, AIModel aiModel, TaskCache cache) {
-    this(driver, new Planner(aiModel, cache), new Executor(driver), 3);
+  public Orchestrator(PageDriver driver, ChatModel chatModel, TaskCache cache) {
+    this(driver, new Planner(chatModel, cache), new Executor(driver), 3);
   }
 
-  public Orchestrator(PageDriver driver, AIModel aiModel, TaskCache cache, int maxRetries) {
-    this(driver, new Planner(aiModel, cache), new Executor(driver), maxRetries);
+  public Orchestrator(PageDriver driver, ChatModel chatModel, TaskCache cache, int maxRetries) {
+    this(driver, new Planner(chatModel, cache), new Executor(driver), maxRetries);
   }
 
   /**
@@ -74,6 +75,21 @@ public class Orchestrator {
     return answer;
   }
 
+  public com.midscene.core.pojo.response.AssertionAiResponse assertCondition(String assertion) {
+    log.info("Asserting: {}", assertion);
+    context.logInstruction("Assert: " + assertion);
+
+    String screenshotBase64 = driver.getScreenshotBase64();
+    context.logScreenshotBefore(screenshotBase64);
+
+    com.midscene.core.pojo.response.AssertionAiResponse response = planner.assertCondition(assertion, screenshotBase64);
+    
+    // Log structured assertion result
+    context.logAction("Assertion " + (response.isPass() ? "PASSED" : "FAILED") + ": " + response.getThought());
+
+    return response;
+  }
+
   /**
    * Executes a natural language instruction on the page.
    *
@@ -87,26 +103,81 @@ public class Orchestrator {
     List<ChatMessage> history = new ArrayList<>();
     boolean finished = false;
     boolean cacheInvalidated = false;
+    String sessionMemory = null;
+    List<ExecutionTask.SubGoal> currentSubGoals = new ArrayList<>();
 
     for (int i = 0; i < maxRetries && !finished; i++) {
       try {
         String screenshotBase64 = driver.getScreenshotBase64();
         context.logScreenshotBefore(screenshotBase64);
 
-        String pageSource = driver.getPageSource();
+        String pageSource = driver.getDomSnapshot();
+        // Fallback to getPageSource if dom extractor fails or returns empty
+        if (pageSource == null || pageSource.equals("[]")) {
+            pageSource = driver.getPageSource();
+        }
 
-        PlanningResponse plan = planner.plan(instruction, screenshotBase64, pageSource, history);
-        context.logPlan(plan.toString());
-        context.logAction("Token usage: " + plan.getDescription());
+        StringBuilder instructionBuilder = new StringBuilder(instruction);
+        if (sessionMemory != null) {
+            instructionBuilder.append("\n\nSession Memory: ").append(sessionMemory);
+        }
+        if (!currentSubGoals.isEmpty()) {
+            instructionBuilder.append("\n\nCurrent Sub-goals status:\n");
+            for (ExecutionTask.SubGoal sg : currentSubGoals) {
+                instructionBuilder.append("- ").append(sg.getIndex()).append(". ")
+                    .append(sg.getDescription()).append(" (").append(sg.getStatus()).append(")\n");
+            }
+        }
+
+        PlanningResponse plan = planner.plan(instructionBuilder.toString(), screenshotBase64, pageSource, history);
+        
+        if (plan.getThought() != null) {
+            log.info("AI Thought: {}", plan.getThought());
+        }
+        if (plan.getLog() != null) {
+            log.info("AI Log: {}", plan.getLog());
+        }
+
+        // Update local sub-goals state
+        if (plan.getUpdateSubGoals() != null) {
+            currentSubGoals = plan.getUpdateSubGoals();
+        }
+        if (plan.getMarkFinishedIndexes() != null) {
+            for (Integer index : plan.getMarkFinishedIndexes()) {
+                currentSubGoals.stream()
+                    .filter(sg -> sg.getIndex().equals(index))
+                    .findFirst()
+                    .ifPresent(sg -> sg.setStatus("finished"));
+            }
+        }
+
+        context.logPlan(plan.getThought(), new ArrayList<>(currentSubGoals), plan.getRawResponse());
+        
+        if (plan.getMemory() != null) {
+            sessionMemory = plan.getMemory();
+        }
+        
+        if (plan.getOutput() != null || Boolean.TRUE.equals(plan.getFinalizeSuccess())) {
+          log.info("Task completed: {}", plan.getOutput());
+          context.logAction("Task completed: " + plan.getOutput());
+          finished = true;
+          break;
+        }
 
         if (Objects.nonNull(plan.getActions()) && !plan.getActions().isEmpty()) {
           for (ActionsItem action : plan.getActions()) {
             executor.execute(action);
           }
           context.logScreenshotAfter(driver.getScreenshotBase64());
-          finished = true;
+          // If model didn't explicitly say it's complete, but actions array is empty 
+          // or moreActionsNeeded is false (if we still used it), we might want to check here.
+          // But with Planning 2.0, we rely on <complete> tag.
+        } else if (plan.getError() != null) {
+          throw new RuntimeException(plan.getError());
         } else {
-          throw new RuntimeException("No actions returned by AI.");
+          // If no actions and no completion signal, it might be an implicit completion or failure
+          log.warn("AI returned no actions and no completion signal.");
+          finished = true; 
         }
 
       } catch (Exception e) {

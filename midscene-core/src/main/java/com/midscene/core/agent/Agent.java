@@ -3,14 +3,7 @@ package com.midscene.core.agent;
 import com.midscene.core.cache.TaskCache;
 import com.midscene.core.config.MidsceneConfig;
 import com.midscene.core.context.Context;
-import com.midscene.core.model.AIModel;
-import com.midscene.core.model.AnthropicModel;
-import com.midscene.core.model.AzureOpenAiModel;
-import com.midscene.core.model.GeminiModel;
-import com.midscene.core.model.MistralModel;
-import com.midscene.core.model.OllamaModel;
-import com.midscene.core.model.OpenAIModel;
-import com.midscene.core.model.QwenModel;
+import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.InputOptions;
 import com.midscene.core.pojo.options.LocateOptions;
 import com.midscene.core.pojo.options.ScrollOptions;
@@ -46,18 +39,18 @@ public class Agent {
   private final PageDriver driver;
   private TaskCache cache;
 
-  public Agent(PageDriver driver, AIModel aiModel) {
-    this(driver, aiModel, TaskCache.disabled(), 3);
+  public Agent(PageDriver driver, ChatModel chatModel) {
+    this(driver, chatModel, TaskCache.disabled(), 3);
   }
 
-  public Agent(PageDriver driver, AIModel aiModel, TaskCache cache) {
-    this(driver, aiModel, cache, 3);
+  public Agent(PageDriver driver, ChatModel chatModel, TaskCache cache) {
+    this(driver, chatModel, cache, 3);
   }
 
-  public Agent(PageDriver driver, AIModel aiModel, TaskCache cache, int maxRetries) {
+  public Agent(PageDriver driver, ChatModel chatModel, TaskCache cache, int maxRetries) {
     this.driver = driver;
     this.cache = cache != null ? cache : TaskCache.disabled();
-    this.orchestrator = new Orchestrator(driver, aiModel, this.cache, maxRetries);
+    this.orchestrator = new Orchestrator(driver, chatModel, this.cache, maxRetries);
   }
 
   /**
@@ -68,14 +61,42 @@ public class Agent {
    * @return A new Agent instance
    */
   public static Agent create(MidsceneConfig config, PageDriver driver) {
-    AIModel model = switch (config.getProvider()) {
-      case OPENAI -> new OpenAIModel(config.getApiKey(), config.getModelName());
-      case GEMINI -> new GeminiModel(config.getApiKey(), config.getModelName());
-      case ANTHROPIC -> new AnthropicModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
-      case MISTRAL -> new MistralModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
-      case AZURE_OPEN_AI -> new AzureOpenAiModel(config.getApiKey(), config.getBaseUrl());
-      case OLLAMA -> new OllamaModel(config.getBaseUrl(), config.getModelName());
-      case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
+    ChatModel model = switch (config.getProvider()) {
+      case OPENAI -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .responseFormat("json_object")
+          .build();
+      case GEMINI -> dev.langchain4j.model.googleai.GoogleAiGeminiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
+          .build();
+      case ANTHROPIC -> dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .build();
+      case MISTRAL -> dev.langchain4j.model.mistralai.MistralAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .build();
+      case AZURE_OPEN_AI -> dev.langchain4j.model.azure.AzureOpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .endpoint(config.getBaseUrl())
+          .deploymentName(config.getModelName())
+          .build();
+      case OLLAMA -> dev.langchain4j.model.ollama.OllamaChatModel.builder()
+          .baseUrl(config.getBaseUrl())
+          .modelName(config.getModelName())
+          .build();
+      case QWEN, THOUSAND_QUESTIONS -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .responseFormat("json_object")
+          .build();
     };
 
     return new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
@@ -90,14 +111,42 @@ public class Agent {
    * @return A new Agent instance
    */
   public static Agent create(MidsceneConfig config, PageDriver driver, TaskCache cache) {
-    AIModel model = switch (config.getProvider()) {
-      case OPENAI -> new OpenAIModel(config.getApiKey(), config.getModelName());
-      case GEMINI -> new GeminiModel(config.getApiKey(), config.getModelName());
-      case ANTHROPIC -> new AnthropicModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
-      case MISTRAL -> new MistralModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
-      case AZURE_OPEN_AI -> new AzureOpenAiModel(config.getApiKey(), config.getBaseUrl());
-      case OLLAMA -> new OllamaModel(config.getBaseUrl(), config.getModelName());
-      case QWEN, THOUSAND_QUESTIONS -> new QwenModel(config.getApiKey(), config.getModelName(), config.getBaseUrl());
+    ChatModel model = switch (config.getProvider()) {
+      case OPENAI -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .responseFormat("json_object")
+          .build();
+      case GEMINI -> dev.langchain4j.model.googleai.GoogleAiGeminiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
+          .build();
+      case ANTHROPIC -> dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .build();
+      case MISTRAL -> dev.langchain4j.model.mistralai.MistralAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .build();
+      case AZURE_OPEN_AI -> dev.langchain4j.model.azure.AzureOpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .endpoint(config.getBaseUrl())
+          .deploymentName(config.getModelName())
+          .build();
+      case OLLAMA -> dev.langchain4j.model.ollama.OllamaChatModel.builder()
+          .baseUrl(config.getBaseUrl())
+          .modelName(config.getModelName())
+          .build();
+      case QWEN, THOUSAND_QUESTIONS -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
+          .apiKey(config.getApiKey())
+          .modelName(config.getModelName())
+          .baseUrl(config.getBaseUrl())
+          .responseFormat("json_object")
+          .build();
     };
 
     return new Agent(driver, model, cache, config.getMaxRetries());
@@ -355,9 +404,9 @@ public class Agent {
    * @throws AssertionError if the assertion fails
    */
   public void aiAssert(String assertion) {
-    boolean result = aiBoolean("Is the following true? " + assertion);
-    if (!result) {
-      throw new AssertionError("AI Assertion failed: " + assertion);
+    com.midscene.core.pojo.response.AssertionAiResponse result = orchestrator.assertCondition(assertion);
+    if (!result.isPass()) {
+      throw new AssertionError("AI Assertion failed: " + assertion + ". Reason: " + result.getThought());
     }
     log.info("AI Assertion passed: {}", assertion);
   }

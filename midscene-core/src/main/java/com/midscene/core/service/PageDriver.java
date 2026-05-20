@@ -29,6 +29,24 @@ public interface PageDriver {
    */
   String getPageSource();
 
+  /**
+   * Get a simplified JSON snapshot of the DOM for AI consumption.
+   *
+   * @return the JSON string of visible DOM elements
+   */
+  default String getDomSnapshot() {
+    try {
+      Object result = executeScript(com.midscene.core.utils.DomExtractorUtils.getExtractorScript());
+      if (result instanceof String) {
+        return (String) result;
+      }
+      return "[]";
+    } catch (Exception e) {
+      // Fallback to empty if not implemented
+      return "[]";
+    }
+  }
+
   /** Click/Tap Actions */
 
   /**

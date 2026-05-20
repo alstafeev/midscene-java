@@ -32,6 +32,17 @@ public class Context {
         .build());
   }
 
+  public void logPlan(String thought, List<ExecutionTask.SubGoal> subGoals, String rawResponse) {
+    logEvent(ContextEvent.builder()
+        .type("PLAN")
+        .description("AI Plan")
+        .thought(thought)
+        .subGoals(subGoals)
+        .rawResponse(rawResponse)
+        .timestamp(System.currentTimeMillis())
+        .build());
+  }
+
   public void logAction(String actionDescription) {
     logEvent(ContextEvent.builder()
         .type("ACTION")

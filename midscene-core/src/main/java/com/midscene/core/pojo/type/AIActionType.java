@@ -43,4 +43,18 @@ public enum AIActionType {
   WAIT_FOR("wait_for");
 
   private final String value;
+
+  public static AIActionType fromValue(String value) {
+    if (value == null) return null;
+    for (AIActionType type : AIActionType.values()) {
+      if (type.value.equalsIgnoreCase(value)) {
+        return type;
+      }
+    }
+    try {
+      return AIActionType.valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
 }
