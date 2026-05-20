@@ -40,3 +40,5 @@ midscene_run/
 /midscene-visualizer/pom.xml.releaseBackup
 /midscene-web/pom.xml.releaseBackup
 /midscene-js/
+/.gemini/
+/.code-review-graph/
