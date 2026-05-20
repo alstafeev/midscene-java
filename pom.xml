@@ -245,12 +245,12 @@
   <scm>
     <connection>scm:git:https://github.com/alstafeev/midscene-java.git</connection>
     <developerConnection>scm:git:https://github.com/alstafeev/midscene-java.git</developerConnection>
-    <tag>v0.1.11</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/alstafeev/midscene-java</url>
   </scm>
 
   <url>https://github.com/alstafeev/midscene-java</url>
 
-  <version>0.1.11</version>
+  <version>0.1.12-SNAPSHOT</version>
 
 </project>
