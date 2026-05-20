@@ -49,7 +49,7 @@
   <parent>
     <artifactId>midscene-parent</artifactId>
     <groupId>io.github.alstafeev</groupId>
-    <version>0.1.8-SNAPSHOT</version>
+    <version>0.1.10-SNAPSHOT</version>
   </parent>
 
   <url>https://github.com/alstafeev/midscene-java</url>

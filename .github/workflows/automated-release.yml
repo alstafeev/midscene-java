@@ -45,7 +45,7 @@ jobs:
           mvn -B release:prepare release:perform \
             -DreleaseVersion=${{ inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ inputs.developmentVersion }} \
-            -Darguments="-DskipTests"
+            -Darguments="-DskipTests -Prelease -Dgpg.passphrase='${{ secrets.GPG_PASSPHRASE }}'"
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
