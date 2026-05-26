@@ -106,7 +106,10 @@ public class PlaywrightDriver implements PageDriver {
   @Override
   public void type(BySelectorType selectorType, String elementSelector, String text) {
     waitUntilPageLoaded();
-    getLocator(selectorType, elementSelector).fill(text);
+    Locator locator = getLocator(selectorType, elementSelector);
+    locator.focus();
+    locator.clear();
+    locator.pressSequentially(text);
   }
 
   @Override
@@ -258,9 +261,10 @@ public class PlaywrightDriver implements PageDriver {
   }
 
   private Locator getLocator(BySelectorType selectorType, String elementSelector) {
-    return switch (selectorType) {
+    Locator locator = switch (selectorType) {
       case BY_XPATH -> page.locator("xpath=" + elementSelector);
       case BY_CSS -> page.locator(elementSelector);
     };
+    return locator.first();
   }
 }

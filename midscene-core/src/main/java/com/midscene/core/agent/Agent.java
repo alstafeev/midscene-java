@@ -65,12 +65,10 @@ public class Agent {
       case OPENAI -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
-          .responseFormat("json_object")
           .build();
       case GEMINI -> dev.langchain4j.model.googleai.GoogleAiGeminiChatModel.builder()
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
-          .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
           .build();
       case ANTHROPIC -> dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
           .apiKey(config.getApiKey())
@@ -95,7 +93,6 @@ public class Agent {
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
           .baseUrl(config.getBaseUrl())
-          .responseFormat("json_object")
           .build();
     };
 
@@ -115,12 +112,10 @@ public class Agent {
       case OPENAI -> dev.langchain4j.model.openai.OpenAiChatModel.builder()
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
-          .responseFormat("json_object")
           .build();
       case GEMINI -> dev.langchain4j.model.googleai.GoogleAiGeminiChatModel.builder()
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
-          .responseFormat(dev.langchain4j.model.chat.request.ResponseFormat.JSON)
           .build();
       case ANTHROPIC -> dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
           .apiKey(config.getApiKey())
@@ -145,7 +140,6 @@ public class Agent {
           .apiKey(config.getApiKey())
           .modelName(config.getModelName())
           .baseUrl(config.getBaseUrl())
-          .responseFormat("json_object")
           .build();
     };
 
