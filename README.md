@@ -30,13 +30,13 @@ Add the necessary dependencies to your project's `pom.xml`. To run the Agent and
 <dependency>
   <groupId>io.github.alstafeev</groupId>
   <artifactId>midscene-web</artifactId>
-  <version>0.1.10</version>
+  <version>0.1.12</version>
 </dependency>
 
 <dependency>
   <groupId>io.github.alstafeev</groupId>
   <artifactId>midscene-visualizer</artifactId>
-  <version>0.1.10</version>
+  <version>0.1.12</version>
 </dependency>
 ```
 
