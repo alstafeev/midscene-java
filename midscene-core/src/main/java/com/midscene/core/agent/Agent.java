@@ -2,6 +2,7 @@ package com.midscene.core.agent;
 
 import com.midscene.core.cache.TaskCache;
 import com.midscene.core.config.MidsceneConfig;
+import com.midscene.core.config.PlanningStrategy;
 import com.midscene.core.context.Context;
 import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.InputOptions;
@@ -38,6 +39,7 @@ public class Agent {
   private final Orchestrator orchestrator;
   private final PageDriver driver;
   private TaskCache cache;
+  private PlanningStrategy planningStrategy = PlanningStrategy.STANDARD;
 
   public Agent(PageDriver driver, ChatModel chatModel) {
     this(driver, chatModel, TaskCache.disabled(), 3);
@@ -96,7 +98,20 @@ public class Agent {
           .build();
     };
 
-    return new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
+    PlanningStrategy strategy = config.getPlanningStrategy();
+    if (strategy == null || strategy == PlanningStrategy.STANDARD) {
+      if (config.getModelName() != null) {
+        String name = config.getModelName().toLowerCase();
+        if (name.contains("ui-tars")) {
+          strategy = PlanningStrategy.UI_TARS;
+        } else if (name.contains("auto-glm")) {
+          strategy = PlanningStrategy.AUTO_GLM;
+        }
+      }
+    }
+    Agent agent = new Agent(driver, model, TaskCache.disabled(), config.getMaxRetries());
+    agent.setPlanningStrategy(strategy != null ? strategy : PlanningStrategy.STANDARD);
+    return agent;
   }
 
   /**
@@ -143,7 +158,20 @@ public class Agent {
           .build();
     };
 
-    return new Agent(driver, model, cache, config.getMaxRetries());
+    PlanningStrategy strategy = config.getPlanningStrategy();
+    if (strategy == null || strategy == PlanningStrategy.STANDARD) {
+      if (config.getModelName() != null) {
+        String name = config.getModelName().toLowerCase();
+        if (name.contains("ui-tars")) {
+          strategy = PlanningStrategy.UI_TARS;
+        } else if (name.contains("auto-glm")) {
+          strategy = PlanningStrategy.AUTO_GLM;
+        }
+      }
+    }
+    Agent agent = new Agent(driver, model, cache, config.getMaxRetries());
+    agent.setPlanningStrategy(strategy != null ? strategy : PlanningStrategy.STANDARD);
+    return agent;
   }
 
   /**
@@ -514,6 +542,20 @@ public class Agent {
    */
   public void setCache(TaskCache cache) {
     this.cache = cache != null ? cache : TaskCache.disabled();
+    if (this.orchestrator != null) {
+      this.orchestrator.setCache(this.cache);
+    }
+  }
+
+  public PlanningStrategy getPlanningStrategy() {
+    return planningStrategy;
+  }
+
+  public void setPlanningStrategy(PlanningStrategy strategy) {
+    this.planningStrategy = strategy != null ? strategy : PlanningStrategy.STANDARD;
+    if (this.orchestrator != null) {
+      this.orchestrator.setPlanningStrategy(this.planningStrategy);
+    }
   }
 
   // ========== Private Helper Methods ==========

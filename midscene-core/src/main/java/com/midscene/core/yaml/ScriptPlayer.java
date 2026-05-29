@@ -209,25 +209,20 @@ public class ScriptPlayer {
    * @param item the flow item to execute
    */
   private void executeFlowItem(YamlFlowItem item) {
-    if (item.getAiAction() != null) {
-      executeAiAction(item);
-    } else if (item.getAiQuery() != null) {
-      executeAiQuery(item);
-    } else if (item.getAiAssert() != null) {
-      executeAiAssert(item);
-    } else if (item.getAiWaitFor() != null) {
-      executeAiWaitFor(item);
-    } else if (item.getSleep() != null) {
-      executeSleep(item);
-    } else if (item.getJavascript() != null) {
-      executeJavaScript(item);
-    } else if (item.getLogScreenshot() != null) {
-      executeLogScreenshot(item);
+    switch (item.getType()) {
+      case AI_ACTION -> executeAiAction(item);
+      case AI_QUERY -> executeAiQuery(item);
+      case AI_ASSERT -> executeAiAssert(item);
+      case AI_WAIT_FOR -> executeAiWaitFor(item);
+      case SLEEP -> executeSleep(item);
+      case JAVASCRIPT -> executeJavaScript(item);
+      case LOG_SCREENSHOT -> executeLogScreenshot(item);
+      default -> log.warn("Unknown flow item type: {}", item);
     }
   }
 
   private void executeAiAction(YamlFlowItem item) {
-    agent.aiAction(item.getAiAction());
+    agent.aiAction(item.getAiActionValue());
   }
 
   private void executeAiQuery(YamlFlowItem item) {
@@ -263,11 +258,11 @@ public class ScriptPlayer {
   }
 
   private void executeLogScreenshot(YamlFlowItem item) {
-    String title = item.getLogScreenshot() != null ? item.getLogScreenshot() : "Screenshot";
+    String title = item.getLogScreenshot() != null ? item.getLogScreenshot() : 
+        (item.getRecordToReport() != null ? item.getRecordToReport() : "Screenshot");
     log.info("Logging screenshot: {}", title);
-    // Logic to actually log or report screenshot could be added here
-    // For now taking screenshot to ensure side effect happens if any
-    agent.getDriver().takeScreenshot();
+    String base64 = agent.getDriver().getScreenshotBase64();
+    agent.getContext().logScreenshotBefore(base64);
   }
 
   /**

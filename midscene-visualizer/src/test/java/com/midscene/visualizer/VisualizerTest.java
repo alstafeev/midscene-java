@@ -32,4 +32,17 @@ class VisualizerTest {
       Visualizer.generateReport(context, tempDir);
     });
   }
+
+  @Test
+  void testGenerateSampleWorkspaceReport() throws Exception {
+    Context context = new Context();
+    context.logInstruction("Search for Midscene on Google");
+    
+    String dummyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+    context.logScreenshotBefore(dummyPng);
+    
+    Path reportPath = Path.of("target/sample_report.html");
+    Visualizer.generateReport(context, reportPath, "Google Search Task");
+    assertTrue(Files.exists(reportPath));
+  }
 }

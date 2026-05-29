@@ -92,6 +92,9 @@ public class ExecutionTask {
  */
 private List<SubGoal> subGoals;
 
+private PageContext pageContext;
+
+
 /**
  * Reasoning content from AI.
  */
@@ -165,18 +168,6 @@ public static class SubGoal {
   public static class RecorderItem {
     private String type;
     private Long ts;
-    private ScreenshotInfo screenshot;
-  }
-
-  /**
-   * Screenshot information for recorder.
-   */
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class ScreenshotInfo {
-    private String base64;
-    private Long capturedAt;
+    private String screenshot;
   }
 }

@@ -1,6 +1,7 @@
 package com.midscene.core.agent;
 
 import com.midscene.core.cache.TaskCache;
+import com.midscene.core.config.PlanningStrategy;
 import com.midscene.core.context.Context;
 import com.midscene.core.context.ExecutionTask;
 import dev.langchain4j.model.chat.ChatModel;
@@ -24,6 +25,7 @@ public class Orchestrator {
   private final int maxRetries;
   @Getter
   private final Context context;
+  private PlanningStrategy planningStrategy = PlanningStrategy.STANDARD;
 
   public Orchestrator(PageDriver driver, ChatModel chatModel) {
     this(driver, new Planner(chatModel, TaskCache.disabled()), new Executor(driver), 3);
@@ -54,6 +56,23 @@ public class Orchestrator {
     this.executor = executor;
     this.maxRetries = maxRetries;
     this.context = new Context();
+  }
+
+  public void setCache(TaskCache cache) {
+    if (this.planner != null) {
+      this.planner.setCache(cache);
+    }
+  }
+
+  public PlanningStrategy getPlanningStrategy() {
+    return planningStrategy;
+  }
+
+  public void setPlanningStrategy(PlanningStrategy strategy) {
+    this.planningStrategy = strategy != null ? strategy : PlanningStrategy.STANDARD;
+    if (this.planner != null) {
+      this.planner.setPlanningStrategy(this.planningStrategy);
+    }
   }
 
   /**

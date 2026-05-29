@@ -52,7 +52,7 @@ public class SeleniumDriver implements PageDriver {
   public void click(Locate locate) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .click()
         .perform();
   }
@@ -67,7 +67,7 @@ public class SeleniumDriver implements PageDriver {
   public void doubleClick(Locate locate) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .doubleClick()
         .perform();
   }
@@ -83,7 +83,7 @@ public class SeleniumDriver implements PageDriver {
   public void rightClick(Locate locate) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .contextClick()
         .perform();
   }
@@ -99,7 +99,7 @@ public class SeleniumDriver implements PageDriver {
   public void longPress(Locate locate, long durationMs) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .clickAndHold()
         .pause(Duration.ofMillis(durationMs))
         .release()
@@ -112,7 +112,7 @@ public class SeleniumDriver implements PageDriver {
   public void type(Locate locate, String text) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .click()
         .sendKeys(text)
         .perform();
@@ -128,7 +128,7 @@ public class SeleniumDriver implements PageDriver {
   public void clearInput(Locate locate) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .click()
         .keyDown(Keys.CONTROL)
         .sendKeys("a")
@@ -156,7 +156,7 @@ public class SeleniumDriver implements PageDriver {
     waitUntilPageLoaded();
     Keys key = mapKeyNameToSeleniumKey(keyName);
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .click()
         .sendKeys(key)
         .perform();
@@ -216,7 +216,7 @@ public class SeleniumDriver implements PageDriver {
   public void hover(Locate locate) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(locate.getX(), locate.getY())
+        .moveToLocation(locate.getX(), locate.getY())
         .perform();
   }
 
@@ -235,7 +235,7 @@ public class SeleniumDriver implements PageDriver {
     int dy = (to.getY() - from.getY()) / steps;
 
     Actions actions = new Actions(driver)
-        .moveByOffset(from.getX(), from.getY())
+        .moveToLocation(from.getX(), from.getY())
         .clickAndHold();
 
     for (int i = 0; i < steps; i++) {
@@ -249,9 +249,9 @@ public class SeleniumDriver implements PageDriver {
   public void dragAndDrop(Locate from, Locate to) {
     waitUntilPageLoaded();
     new Actions(driver)
-        .moveByOffset(from.getX(), from.getY())
+        .moveToLocation(from.getX(), from.getY())
         .clickAndHold()
-        .moveByOffset(to.getX() - from.getX(), to.getY() - from.getY())
+        .moveToLocation(to.getX(), to.getY())
         .release()
         .perform();
   }
