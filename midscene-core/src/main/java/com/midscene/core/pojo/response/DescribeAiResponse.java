@@ -6,5 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class DescribeAiResponse {
-    private String description;
+
+  private String description;
 }

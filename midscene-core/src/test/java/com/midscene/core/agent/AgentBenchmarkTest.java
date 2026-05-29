@@ -2,19 +2,15 @@ package com.midscene.core.agent;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.midscene.core.cache.TaskCache;
-import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.WaitOptions;
 import com.midscene.core.service.PageDriver;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -34,7 +30,8 @@ public class AgentBenchmarkTest {
     Agent agent = new Agent(driver, chatModel);
 
     // Mock PageDriver screenshot behavior (needed for Planner.query)
-    when(driver.getScreenshotBase64()).thenReturn("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+    when(driver.getScreenshotBase64()).thenReturn(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
 
     // Mock executeScript to simulate mutations
     // 1. Init script (any string starting with window.__midscene_mutation_happened = true) -> return null
@@ -45,14 +42,14 @@ public class AgentBenchmarkTest {
         return null;
       }
       if (script.contains("return happened")) {
-         // simulate:
-         // call 1: true (initial check)
-         // call 2: false (no mutation)
-         // call 3: true (mutation happened)
-         // call 4: ...
-         return invocation.getMock().toString().contains("call_1") ? true : false;
-         // Wait, Mockito state is hard to track this way inside the answer without external counter.
-         // Let's use a counter.
+        // simulate:
+        // call 1: true (initial check)
+        // call 2: false (no mutation)
+        // call 3: true (mutation happened)
+        // call 4: ...
+        return invocation.getMock().toString().contains("call_1") ? true : false;
+        // Wait, Mockito state is hard to track this way inside the answer without external counter.
+        // Let's use a counter.
       }
       return null;
     });
@@ -60,18 +57,24 @@ public class AgentBenchmarkTest {
     // Refined mock for executeScript with counter
     final int[] scriptCallCount = {0};
     when(driver.executeScript(anyString())).thenAnswer(invocation -> {
-        String script = invocation.getArgument(0);
-        if (script.contains("if (!window.__midscene_observer)")) {
-            return null;
-        }
-        if (script.contains("return happened")) {
-            scriptCallCount[0]++;
-            if (scriptCallCount[0] == 1) return true; // Initial check
-            if (scriptCallCount[0] == 2) return false; // No mutation
-            if (scriptCallCount[0] == 3) return true; // Mutation happened
-            return false;
-        }
+      String script = invocation.getArgument(0);
+      if (script.contains("if (!window.__midscene_observer)")) {
         return null;
+      }
+      if (script.contains("return happened")) {
+        scriptCallCount[0]++;
+        if (scriptCallCount[0] == 1) {
+          return true; // Initial check
+        }
+        if (scriptCallCount[0] == 2) {
+          return false; // No mutation
+        }
+        if (scriptCallCount[0] == 3) {
+          return true; // Mutation happened
+        }
+        return false;
+      }
+      return null;
     });
 
     // Mock ChatModel behavior

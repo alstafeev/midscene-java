@@ -10,6 +10,14 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/io.github.alstafeev/midscene-visualizer -->
+    <dependency>
+      <artifactId>midscene-visualizer</artifactId>
+      <groupId>io.github.alstafeev</groupId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
     <dependency>
       <artifactId>selenium-java</artifactId>

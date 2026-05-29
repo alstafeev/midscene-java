@@ -55,14 +55,13 @@ public class PlanningResponse {
    * Token usage description (set by Java code, not from AI).
    */
   private String description;
-/**
- * Memory data to persist between steps.
- */
-private String memory;
+  /**
+   * Memory data to persist between steps.
+   */
+  private String memory;
 
-/**
- * Raw XML response from AI.
-...
+  /**
+   * Raw XML response from AI. ...
    */
   private String rawResponse;
 }

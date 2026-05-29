@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AssertionAiResponse {
-    private boolean pass;
-    private String thought;
+
+  private boolean pass;
+  private String thought;
 }

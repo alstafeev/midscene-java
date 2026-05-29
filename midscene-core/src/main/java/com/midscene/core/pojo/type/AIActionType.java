@@ -45,7 +45,9 @@ public enum AIActionType {
   private final String value;
 
   public static AIActionType fromValue(String value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     for (AIActionType type : AIActionType.values()) {
       if (type.value.equalsIgnoreCase(value)) {
         return type;

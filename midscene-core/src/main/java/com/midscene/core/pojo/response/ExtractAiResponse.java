@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class ExtractAiResponse<T> {
-    private T data;
-    private String thought;
-    private List<String> errors;
+
+  private T data;
+  private String thought;
+  private List<String> errors;
 }

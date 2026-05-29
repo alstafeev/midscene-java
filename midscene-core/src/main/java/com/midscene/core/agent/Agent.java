@@ -4,12 +4,12 @@ import com.midscene.core.cache.TaskCache;
 import com.midscene.core.config.MidsceneConfig;
 import com.midscene.core.config.PlanningStrategy;
 import com.midscene.core.context.Context;
-import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.InputOptions;
 import com.midscene.core.pojo.options.LocateOptions;
 import com.midscene.core.pojo.options.ScrollOptions;
 import com.midscene.core.pojo.options.WaitOptions;
 import com.midscene.core.service.PageDriver;
+import dev.langchain4j.model.chat.ChatModel;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.log4j.Log4j2;
 

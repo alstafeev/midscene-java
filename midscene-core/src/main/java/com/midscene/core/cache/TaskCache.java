@@ -28,9 +28,9 @@ public class TaskCache {
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
       .build();
   private final Map<String, PlanningResponse> memoryCache = new ConcurrentHashMap<>();
+  private final Object fileLock = new Object();
   private CacheMode mode;
   private Path cacheFilePath;
-  private final Object fileLock = new Object();
 
   /**
    * Creates a new TaskCache with the given mode and optional file path.
@@ -160,8 +160,7 @@ public class TaskCache {
   }
 
   /**
-   * Invalidates (removes) a specific cached entry.
-   * Use this when a cached plan fails and needs to be refreshed.
+   * Invalidates (removes) a specific cached entry. Use this when a cached plan fails and needs to be refreshed.
    *
    * @param prompt the prompt to invalidate
    * @return true if the entry was removed, false if it wasn't cached
@@ -173,7 +172,7 @@ public class TaskCache {
 
     String key = generateCacheKey(prompt);
     PlanningResponse removed = memoryCache.remove(key);
-    
+
     if (removed != null) {
       log.info("Invalidated cache entry for prompt key: {}", key.substring(0, 8));
       if (cacheFilePath != null) {

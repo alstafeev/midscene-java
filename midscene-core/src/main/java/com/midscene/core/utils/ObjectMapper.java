@@ -44,8 +44,10 @@ public class ObjectMapper {
   }
 
   private String cleanMarkdown(String input) {
-    if (input == null) return null;
-    
+    if (input == null) {
+      return null;
+    }
+
     // Find the first occurrence of ``` (with or without language identifier)
     int startIndex = input.indexOf("```");
     if (startIndex != -1) {
@@ -56,14 +58,14 @@ public class ObjectMapper {
       } else {
         startIndex += 3; // Fallback, just skip the backticks
       }
-      
+
       // Find the closing ```
       int endIndex = input.lastIndexOf("```");
       if (endIndex > startIndex) {
         input = input.substring(startIndex, endIndex);
       }
     }
-    
+
     return input.trim();
   }
 }

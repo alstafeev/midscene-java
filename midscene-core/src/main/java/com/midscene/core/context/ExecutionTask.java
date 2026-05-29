@@ -87,43 +87,44 @@ public class ExecutionTask {
    * Recorder items (screenshots, etc.).
    */
   private List<RecorderItem> recorder;
-/**
- * List of sub-goals for the current instruction.
- */
-private List<SubGoal> subGoals;
+  /**
+   * List of sub-goals for the current instruction.
+   */
+  private List<SubGoal> subGoals;
 
-private PageContext pageContext;
+  private PageContext pageContext;
 
 
-/**
- * Reasoning content from AI.
- */
-@JsonProperty("reasoning_content")
-private String reasoningContent;
+  /**
+   * Reasoning content from AI.
+   */
+  @JsonProperty("reasoning_content")
+  private String reasoningContent;
 
-/**
- * Represents a sub-goal in the planning process.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public static class SubGoal {
-  private Integer index;
-  private String status; // pending, running, finished
-  private String description;
-  private List<String> logs;
-}
+  /**
+   * Represents a sub-goal in the planning process.
+   */
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class SubGoal {
 
-/**
- * Task timing information.
-...
+    private Integer index;
+    private String status; // pending, running, finished
+    private String description;
+    private List<String> logs;
+  }
+
+  /**
+   * Task timing information. ...
    */
   @Data
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
   public static class TaskTiming {
+
     private Long start;
     private Long end;
     private Long cost;
@@ -137,24 +138,25 @@ public static class SubGoal {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class AIUsageInfo {
+
     @JsonProperty("prompt_tokens")
     private Integer promptTokens;
-    
+
     @JsonProperty("completion_tokens")
     private Integer completionTokens;
-    
+
     @JsonProperty("total_tokens")
     private Integer totalTokens;
-    
+
     @JsonProperty("time_cost")
     private Long timeCost;
-    
+
     @JsonProperty("model_name")
     private String modelName;
-    
+
     @JsonProperty("model_description")
     private String modelDescription;
-    
+
     private String intent;
   }
 
@@ -166,6 +168,7 @@ public static class SubGoal {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class RecorderItem {
+
     private String type;
     private Long ts;
     private String screenshot;

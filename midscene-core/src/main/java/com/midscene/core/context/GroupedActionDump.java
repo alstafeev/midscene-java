@@ -78,9 +78,10 @@ public class GroupedActionDump {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class ModelBrief {
+
     private String intent;
     private String name;
-    
+
     @JsonProperty("modelDescription")
     private String modelDescription;
   }

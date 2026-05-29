@@ -1,10 +1,10 @@
 package com.midscene.core.service;
 
-import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.options.LocateOptions;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.Collections;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class Service {
   /**
    * Creates a new Service with a PageDriver and ChatModel.
    *
-   * @param driver  the page driver for screenshots
+   * @param driver    the page driver for screenshots
    * @param chatModel the AI model for processing
    */
   public Service(PageDriver driver, ChatModel chatModel) {
@@ -38,7 +38,7 @@ public class Service {
    * Creates a new Service with a custom screenshot supplier.
    *
    * @param screenshotSupplier supplier for screenshot Base64 strings
-   * @param chatModel            the AI model for processing
+   * @param chatModel          the AI model for processing
    */
   public Service(Supplier<String> screenshotSupplier, ChatModel chatModel) {
     this.driver = null;
@@ -299,8 +299,9 @@ public class Service {
 
   private LocateResult parseLocateResponse(String response) {
     try {
-      com.midscene.core.pojo.response.LocateAiResponse aiResponse = 
-          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response, com.midscene.core.pojo.response.LocateAiResponse.class);
+      com.midscene.core.pojo.response.LocateAiResponse aiResponse =
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response,
+              com.midscene.core.pojo.response.LocateAiResponse.class);
 
       if (aiResponse == null || !aiResponse.isFound()) {
         return LocateResult.builder()
@@ -309,7 +310,8 @@ public class Service {
             .build();
       }
 
-      int[] bbox = aiResponse.getBbox() != null && aiResponse.getBbox().length >= 4 ? aiResponse.getBbox() : new int[]{0, 0, 100, 100};
+      int[] bbox = aiResponse.getBbox() != null && aiResponse.getBbox().length >= 4 ? aiResponse.getBbox()
+          : new int[]{0, 0, 100, 100};
       int[] center = aiResponse.getCenter();
 
       LocateResult.Rect rect = LocateResult.Rect.builder()
@@ -340,12 +342,14 @@ public class Service {
 
   private ExtractResult<String> parseExtractResponse(String response) {
     try {
-      com.midscene.core.pojo.response.ExtractAiResponse<String> aiResponse = 
+      com.midscene.core.pojo.response.ExtractAiResponse<String> aiResponse =
           com.midscene.core.utils.ObjectMapper.mapResponseToClass(
-              response, new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<String>>() {});
+              response,
+              new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<String>>() {
+              });
 
       if (aiResponse == null) {
-          throw new RuntimeException("Parsed response is null");
+        throw new RuntimeException("Parsed response is null");
       }
 
       return ExtractResult.<String>builder()
@@ -362,12 +366,14 @@ public class Service {
   private ExtractResult<Map<String, Object>> parseStructuredExtractResponse(String response,
       Map<String, String> dataDemand) {
     try {
-      com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>> aiResponse = 
+      com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>> aiResponse =
           com.midscene.core.utils.ObjectMapper.mapResponseToClass(
-              response, new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>>>() {});
-              
+              response,
+              new com.fasterxml.jackson.core.type.TypeReference<com.midscene.core.pojo.response.ExtractAiResponse<Map<String, Object>>>() {
+              });
+
       if (aiResponse == null) {
-          throw new RuntimeException("Parsed response is null");
+        throw new RuntimeException("Parsed response is null");
       }
 
       return ExtractResult.<Map<String, Object>>builder()
@@ -383,13 +389,14 @@ public class Service {
 
   private DescribeResult parseDescribeResponse(String response) {
     try {
-      com.midscene.core.pojo.response.DescribeAiResponse aiResponse = 
-          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response, com.midscene.core.pojo.response.DescribeAiResponse.class);
-          
+      com.midscene.core.pojo.response.DescribeAiResponse aiResponse =
+          com.midscene.core.utils.ObjectMapper.mapResponseToClass(response,
+              com.midscene.core.pojo.response.DescribeAiResponse.class);
+
       if (aiResponse == null) {
-          throw new RuntimeException("Parsed response is null");
+        throw new RuntimeException("Parsed response is null");
       }
-          
+
       return DescribeResult.builder()
           .description(aiResponse.getDescription())
           .build();

@@ -221,8 +221,8 @@
 
   <modules>
     <module>midscene-core</module>
-    <module>midscene-web</module>
     <module>midscene-visualizer</module>
+    <module>midscene-web</module>
   </modules>
   <name>Midscene Java</name>
 

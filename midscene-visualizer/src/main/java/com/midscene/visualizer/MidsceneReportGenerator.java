@@ -10,10 +10,9 @@ import java.util.Map;
 
 public class MidsceneReportGenerator {
 
-  private final String reportTemplate;
-
-  private static volatile String cachedTemplate = null;
   private static final Object lock = new Object();
+  private static volatile String cachedTemplate = null;
+  private final String reportTemplate;
 
   public MidsceneReportGenerator() throws IOException {
     if (cachedTemplate == null) {
@@ -24,6 +23,14 @@ public class MidsceneReportGenerator {
       }
     }
     this.reportTemplate = cachedTemplate;
+  }
+
+  public MidsceneReportGenerator(Path templatePath) throws IOException {
+    this.reportTemplate = Files.readString(templatePath, StandardCharsets.UTF_8);
+  }
+
+  public MidsceneReportGenerator(String templateContent) {
+    this.reportTemplate = templateContent;
   }
 
   private static String loadTemplate() throws IOException {
@@ -44,14 +51,6 @@ public class MidsceneReportGenerator {
     }
 
     return template.replace("__FAVICON__", favicon);
-  }
-
-  public MidsceneReportGenerator(Path templatePath) throws IOException {
-    this.reportTemplate = Files.readString(templatePath, StandardCharsets.UTF_8);
-  }
-
-  public MidsceneReportGenerator(String templateContent) {
-    this.reportTemplate = templateContent;
   }
 
   /**

@@ -1,11 +1,9 @@
 package com.midscene.core.yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.midscene.core.agent.Agent;
 import com.midscene.core.context.Context;
 import com.midscene.core.context.ContextEvent;
@@ -40,7 +38,7 @@ class ScriptPlayerTest {
     // Test ai alias
     YamlFlowItem aiItem = new YamlFlowItem();
     aiItem.setAi("Click the button");
-    
+
     // Test that item type is recognized correctly
     assertEquals(YamlFlowItem.FlowItemType.AI_ACTION, aiItem.getType());
     assertEquals("Click the button", aiItem.getAiActionValue());

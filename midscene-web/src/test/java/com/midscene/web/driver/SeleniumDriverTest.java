@@ -99,7 +99,7 @@ class SeleniumDriverTest {
     assertEquals(1, sequences.size());
     org.openqa.selenium.interactions.Sequence sequence = sequences.iterator().next();
     String sequenceStr = sequence.toJson().toString();
-    
+
     // Verify that the pointer movement is absolute (origin is viewport) and has the correct coordinates
     assertTrue(sequenceStr.contains("origin=viewport") || sequenceStr.contains("origin\":\"viewport"));
     assertTrue(sequenceStr.contains("x=150") || sequenceStr.contains("x\":150"));

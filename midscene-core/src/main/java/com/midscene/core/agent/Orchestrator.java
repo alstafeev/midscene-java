@@ -4,12 +4,12 @@ import com.midscene.core.cache.TaskCache;
 import com.midscene.core.config.PlanningStrategy;
 import com.midscene.core.context.Context;
 import com.midscene.core.context.ExecutionTask;
-import dev.langchain4j.model.chat.ChatModel;
 import com.midscene.core.pojo.planning.ActionsItem;
 import com.midscene.core.pojo.planning.PlanningResponse;
 import com.midscene.core.service.PageDriver;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.ChatModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -102,7 +102,7 @@ public class Orchestrator {
     context.logScreenshotBefore(screenshotBase64);
 
     com.midscene.core.pojo.response.AssertionAiResponse response = planner.assertCondition(assertion, screenshotBase64);
-    
+
     // Log structured assertion result
     context.logAction("Assertion " + (response.isPass() ? "PASSED" : "FAILED") + ": " + response.getThought());
 
@@ -133,49 +133,49 @@ public class Orchestrator {
         String pageSource = driver.getDomSnapshot();
         // Fallback to getPageSource if dom extractor fails or returns empty
         if (pageSource == null || pageSource.equals("[]")) {
-            pageSource = driver.getPageSource();
+          pageSource = driver.getPageSource();
         }
 
         StringBuilder instructionBuilder = new StringBuilder(instruction);
         if (sessionMemory != null) {
-            instructionBuilder.append("\n\nSession Memory: ").append(sessionMemory);
+          instructionBuilder.append("\n\nSession Memory: ").append(sessionMemory);
         }
         if (!currentSubGoals.isEmpty()) {
-            instructionBuilder.append("\n\nCurrent Sub-goals status:\n");
-            for (ExecutionTask.SubGoal sg : currentSubGoals) {
-                instructionBuilder.append("- ").append(sg.getIndex()).append(". ")
-                    .append(sg.getDescription()).append(" (").append(sg.getStatus()).append(")\n");
-            }
+          instructionBuilder.append("\n\nCurrent Sub-goals status:\n");
+          for (ExecutionTask.SubGoal sg : currentSubGoals) {
+            instructionBuilder.append("- ").append(sg.getIndex()).append(". ")
+                .append(sg.getDescription()).append(" (").append(sg.getStatus()).append(")\n");
+          }
         }
 
         PlanningResponse plan = planner.plan(instructionBuilder.toString(), screenshotBase64, pageSource, history);
-        
+
         if (plan.getThought() != null) {
-            log.info("AI Thought: {}", plan.getThought());
+          log.info("AI Thought: {}", plan.getThought());
         }
         if (plan.getLog() != null) {
-            log.info("AI Log: {}", plan.getLog());
+          log.info("AI Log: {}", plan.getLog());
         }
 
         // Update local sub-goals state
         if (plan.getUpdateSubGoals() != null) {
-            currentSubGoals = plan.getUpdateSubGoals();
+          currentSubGoals = plan.getUpdateSubGoals();
         }
         if (plan.getMarkFinishedIndexes() != null) {
-            for (Integer index : plan.getMarkFinishedIndexes()) {
-                currentSubGoals.stream()
-                    .filter(sg -> sg.getIndex().equals(index))
-                    .findFirst()
-                    .ifPresent(sg -> sg.setStatus("finished"));
-            }
+          for (Integer index : plan.getMarkFinishedIndexes()) {
+            currentSubGoals.stream()
+                .filter(sg -> sg.getIndex().equals(index))
+                .findFirst()
+                .ifPresent(sg -> sg.setStatus("finished"));
+          }
         }
 
         context.logPlan(plan.getThought(), new ArrayList<>(currentSubGoals), plan.getRawResponse());
-        
+
         if (plan.getMemory() != null) {
-            sessionMemory = plan.getMemory();
+          sessionMemory = plan.getMemory();
         }
-        
+
         if (plan.getOutput() != null || Boolean.TRUE.equals(plan.getFinalizeSuccess())) {
           log.info("Task completed: {}", plan.getOutput());
           context.logAction("Task completed: " + plan.getOutput());
@@ -196,13 +196,13 @@ public class Orchestrator {
         } else {
           // If no actions and no completion signal, it might be an implicit completion or failure
           log.warn("AI returned no actions and no completion signal.");
-          finished = true; 
+          finished = true;
         }
 
       } catch (Exception e) {
         log.error("Failed to execute plan (Attempt {}) {}", i + 1, e.getMessage());
         context.logError("Attempt " + (i + 1) + " failed: " + e.getMessage());
-        
+
         // On first failure, invalidate cache and clear history to force fresh AI call
         if (!cacheInvalidated && i == 0) {
           boolean wasInvalidated = planner.invalidateCache(instruction);
@@ -212,7 +212,7 @@ public class Orchestrator {
             cacheInvalidated = true;
           }
         }
-        
+
         history.add(UserMessage.from("Error executing plan: " + e.getMessage()));
       }
     }

@@ -46,19 +46,18 @@ public class ContextEvent {
    * Duration of the event in milliseconds.
    */
   private Long durationMs;
-/**
- * AI's thought/reasoning content.
- */
-private String thought;
+  /**
+   * AI's thought/reasoning content.
+   */
+  private String thought;
 
-/**
- * List of sub-goals.
- */
-private java.util.List<ExecutionTask.SubGoal> subGoals;
+  /**
+   * List of sub-goals.
+   */
+  private java.util.List<ExecutionTask.SubGoal> subGoals;
 
-/**
- * Error message if event represents an error.
-...
+  /**
+   * Error message if event represents an error. ...
    */
   private String error;
 

@@ -34,9 +34,9 @@ class AgentTest {
 
     Agent agent = Agent.create(config, driver);
     com.midscene.core.cache.TaskCache newCache = com.midscene.core.cache.TaskCache.memoryOnly();
-    
+
     agent.setCache(newCache);
-    
+
     // Verify Agent's cache is updated
     org.junit.jupiter.api.Assertions.assertSame(newCache, agent.getCache());
 
