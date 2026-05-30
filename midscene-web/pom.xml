@@ -68,7 +68,7 @@
   <parent>
     <artifactId>midscene-parent</artifactId>
     <groupId>io.github.alstafeev</groupId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
 
   <properties>
